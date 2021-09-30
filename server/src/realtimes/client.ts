@@ -39,6 +39,7 @@ export default class WsClient<CommandType> extends EventEmitter {
         const type = <string><unknown>command.c;
         this.emit(type, command.d);
       } catch (e) {
+        console.log(e);
       }
     }
   }

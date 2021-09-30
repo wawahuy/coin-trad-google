@@ -1,3 +1,4 @@
 src/browser_tmp
 node_modules
 dist
+resource/profile

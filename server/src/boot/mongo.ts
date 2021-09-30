@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { appConfigs } from '../config/app';
+import ModelWorker from '../models/schema/worker';
 
 export default function initMongo() {
   const uri = appConfigs.MONGO_URI;

@@ -1,27 +1,27 @@
 import WebSocket from 'ws';
 import ClientManager from '../client_manager';
-import WsProxyClient from './client';
+import WsCoinClient from './client';
 import { ECommandType } from './command';
 
 /**
  * Server
  * 
  */
-const wsProxy = new WebSocket.Server({ noServer: true });
+const wsCoin = new WebSocket.Server({ noServer: true });
 
 /**
  * Manager
  * 
  */
-export const wsProxyManager = new ClientManager<ECommandType, WsProxyClient>();
+export const wsCoinManager = new ClientManager<ECommandType, WsCoinClient>();
 
 /**
  * Connection
  * 
  */
-wsProxy.on('connection', (ws: WebSocket) => {
-  const client = new WsProxyClient(ws);
-  wsProxyManager.connection(client);
+wsCoin.on('connection', (ws: WebSocket) => {
+  const client = new WsCoinClient(ws);
+  wsCoinManager.connection(client);
 });
 
-export default wsProxy;
+export default wsCoin;
