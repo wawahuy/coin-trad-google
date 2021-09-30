@@ -15,10 +15,9 @@ chrome.setDefaultService(service);
 
 (async function example() {
   let option = new chrome.Options();
+  option.addArguments("--user-data-dir=" + getDirUserData());
   if (!isWin) {
     option.addArguments('disable-dev-shm-usage');
-  } else {
-    option.addArguments("--user-data-dir=" + getDirUserData());
   }
 
   let driver = await new Builder()
@@ -30,7 +29,7 @@ chrome.setDefaultService(service);
     if (await taskIsLogin(driver)) {
       await taskGoogleShell(driver);      
     } else {
-      await taskLogin(driver, "train123yuh", "adadad1999");
+      // await taskLogin(driver, "train123yuh", "adadad1999");
     }
   } finally {
     setTimeout(async function () {

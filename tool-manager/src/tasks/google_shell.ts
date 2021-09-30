@@ -17,10 +17,15 @@ async function getStdOutResult(driver: WebDriver) {
   await driver.wait(until.elementsLocated(locateShellXterm), 20000);
   let elementShellXterm = await driver.findElement(locateShellXterm);
   let rows = await elementShellXterm.findElements(By.css('div'));
-  if (rows.length > 0) {
-    return await rows[rows.length - 2].getText();
+  let text;
+  for (let i = 0; i < rows.length - 2; i++) {
+    text = await rows[i].getText();
+    let textTmp = await rows[i + 2].getText();
+    if (textTmp == '') {
+      break;
+    }
   }
-  return "";
+  return text;
 }
 
 export default async function taskGoogleShell(driver: WebDriver) {
@@ -30,7 +35,9 @@ export default async function taskGoogleShell(driver: WebDriver) {
     let i = 2;
     while (i-- > 0) {
       // check create container
+      await sendCommand(driver, 'clear');
       await sendCommand(driver, 'docker ps');
+      await sleep(1000);
       result = await getStdOutResult(driver);
       if (result && result.match(/container id/im)) {
         await sendCommand(driver, 'docker run -it -d ubuntu');

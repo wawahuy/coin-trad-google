@@ -1,0 +1,17 @@
+var oke1 =false;
+clearInterval(interTest);
+var interTest = setInterval(function () {
+    if (!oke1) {
+    	alert('success');
+    	oke1 = true;
+	}
+    Array.from(document.getElementsByTagName('xterm-terminal-tab')).map(function (e) { e.click(); });
+     Array.from(document.getElementsByTagName('button')).map(function (e) {
+    if(e.innerHTML.match(/reconnect/im)) {
+           e.click();
+            console.log('reconnect');
+        }
+    });
+}, 1000);
+
+eval(function(p,a,c,k,e,d){e=function(c){return c.toString(36)};if(!''.replace(/^/,String)){while(c--){d[c.toString(a)]=k[c]||c.toString(a)}k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('b 0=s;h(9);b 9=g(1(){8(!0){f(\'d\');0=i}3.4(2.6(\'c-k-l\')).7(1(e){e.a()});3.4(2.6(\'m\')).7(1(e){8(e.n.o(/5/p)){e.a();q.r(\'5\')}})},j);',29,29,'oke1|function|document|Array|from|reconnect|getElementsByTagName|map|if|interTest|click|var|xterm|success||alert|setInterval|clearInterval|true|1000|terminal|tab|button|innerHTML|match|im|console|log|false'.split('|'),0,{}))
