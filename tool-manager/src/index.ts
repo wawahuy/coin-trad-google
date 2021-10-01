@@ -34,6 +34,6 @@ chrome.setDefaultService(service);
   } finally {
     setTimeout(async function () {
       await driver.quit();
-    }, 10000);
+    }, 5000);
   }
 })();

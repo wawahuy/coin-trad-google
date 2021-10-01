@@ -10,7 +10,9 @@ import { getResourcePath } from '../../helpers/dir';
 export default async function workerScript(req: Request, res: Response) {
   const path = getResourcePath("coin.sh");
   if (fs.existsSync(path)) {
-    res.send(fs.readFileSync(path));
+    let content = fs.readFileSync(path).toString('utf-8');
+    content = content.replace(/!!__URL__!!/gim, appConfigs.BASE_SHELL_URL);
+    res.send(content);
   } else {
     res.status(400).send('Not Found');
   }
