@@ -8,6 +8,9 @@ import { appConfigs } from '../../config/app';
 export default async function workerGet(req: Request, res: Response) {
   const filter: FilterQuery<IWorkerDocument> = {
     type: WorkerType.Worker,
+    status: {
+      $ne: WorkerStatus.Checkpoint as number
+    },
     $and: [
       {
         $or: [

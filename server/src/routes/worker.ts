@@ -15,6 +15,6 @@ routerWorker.post('/close', workerClose);
 routerWorker.post('/checkpoint', workerCheckpoint);
 routerWorker.post('/profile/:id', workerProfileUpload);
 routerWorker.get('/profile/:id', workerProfileDownload);
-routerWorker.get('/script', workerScript);
+routerWorker.get('/script/:id', workerScript);
 routerWorker.get('/get', workerGet);
 export default routerWorker;

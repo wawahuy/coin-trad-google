@@ -38,6 +38,10 @@ export default async function workerProfileUpload(req: Request, res: Response) {
             status: false
           })
         })
+    }).on('error', function () {
+      res.json({
+        status: false
+      })
     });
   }
 }
