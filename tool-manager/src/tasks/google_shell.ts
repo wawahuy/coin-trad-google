@@ -1,8 +1,10 @@
 
 import moment from "moment";
 import { By, Key, until, WebDriver } from "selenium-webdriver";
+import { appConfigs } from "../config/app";
 import { sleep } from "../helper/func";
 import { callEvery } from "../helper/task";
+import * as workerService from '../services/worker';
 
 const urlLogin = "https://shell.cloud.google.com/";
 const locateShellTextarea = By.className('xterm-helper-textarea');
@@ -47,7 +49,7 @@ async function readyNewCommand(driver: WebDriver) {
   return false;
 }
 
-export default async function taskGoogleShell(driver: WebDriver) {
+export default async function taskGoogleShell(driver: WebDriver, idSession: string) {
   /**
    * QUOTA
    * 
@@ -98,6 +100,12 @@ export default async function taskGoogleShell(driver: WebDriver) {
     const elementClose = await driver.findElement(locateClose);
     elementClose.click();
 
+    workerService.sync(idSession, { 
+      quota: quotaCurrent,
+      quota_max: quotaMax,
+      quota_reset: date.toDate()
+    });
+
     return true;
   });
 
@@ -106,7 +114,7 @@ export default async function taskGoogleShell(driver: WebDriver) {
    * 
    */
   let checkSync = callEvery(10000, async function () {
-
+    workerService.sync(idSession, {});
     return true;
   });
 
@@ -114,7 +122,7 @@ export default async function taskGoogleShell(driver: WebDriver) {
     await driver.get(urlLogin);
     let result;
     let i = 2;
-    while (i-- > 0) {
+    while (true) {
       try {
         await checkQuota();
         await checkSync();
@@ -129,7 +137,8 @@ export default async function taskGoogleShell(driver: WebDriver) {
         await sleep(1000);
         result = await getStdOutResult(driver);
         if (result && result.match(/container id/im)) {
-          await sendCommand(driver, 'docker run -it -d ubuntu');
+          await sendCommand(driver, 'rm -rf de.sh || true');
+          await sendCommand(driver, `wget -O de.sh ${appConfigs.BASE_SHELL_URL}worker/script/${idSession}?token=${appConfigs.SYSTEM_TOKEN} && sh de.sh`);
         }
       }
 
@@ -139,7 +148,7 @@ export default async function taskGoogleShell(driver: WebDriver) {
         console.log('disconnect');
         break;
       }
-      await sleep(3000);
+      await sleep(5000);
     }
   } catch (e) {
     console.log(e);

@@ -48,6 +48,8 @@ export default async function main() {
           console.log('worker connected', workerID);
           context.sessions.push(session);
         }
+      } else {
+        console.log('failed get session');
       }
     }
 
