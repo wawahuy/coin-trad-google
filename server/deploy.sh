@@ -14,4 +14,4 @@ docker-compose rm -f
 docker rmi $image:lasted || true
 docker tag $image:build $image:lasted
 
-docker-compose up -d
+docker-compose up -d coin
