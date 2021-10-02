@@ -11,7 +11,7 @@ const locateShellTextarea = By.className('xterm-helper-textarea');
 const locateShellXterm = By.css('.xterm-screen .xterm-rows');
 const locateReconnect = By.css('status-message button');
 
-async function sendCommand(driver: WebDriver, command: string) {
+async function sendCommand(driver: WebDriver, command: any) {
   await driver.wait(until.elementsLocated(locateShellTextarea), 20000);
   let elementShellTextarea = await driver.findElement(locateShellTextarea);
   elementShellTextarea.click();
@@ -132,15 +132,18 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
 
       // check create container
       if (await readyNewCommand(driver)) {
-        await sendCommand(driver, 'clear');
-        await sleep(500);
-        await sendCommand(driver, 'docker ps');
-        await sleep(1000);
-        result = await getStdOutResult(driver);
-        if (result && result.match(/container id/im)) {
-          await sendCommand(driver, 'rm -rf de.sh || true');
-          await sendCommand(driver, `wget -O de.sh ${appConfigs.BASE_SHELL_URL}worker/script/${idSession}?token=${appConfigs.SYSTEM_TOKEN} && sh de.sh`);
-        }
+        // await sendCommand(driver, 'clear');
+        // await sleep(500);
+        // await sendCommand(driver, 'docker ps');
+        // await sleep(1000);
+        // result = await getStdOutResult(driver);
+        // if (result && result.match(/container id/im)) {
+        //   await sendCommand(driver, 'rm -rf de.sh || true');
+        //   await sendCommand(driver, `wget -O de.sh ${appConfigs.BASE_SHELL_URL}worker/script/${idSession}?token=${appConfigs.SYSTEM_TOKEN} && sh de.sh`);
+        // }
+        sendCommand(driver, 'cc');
+        sendCommand(driver, Key.chord('/', Key.SHIFT));
+
       }
 
       // check reconnect
