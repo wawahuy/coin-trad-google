@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "env-cmd -f ./env/dev.env nodemon"
+    "dev": "env-cmd -f ./env/dev.env nodemon",
+    "prod": "env-cmd -f ./env/prod.env node ./dist/index.js",
+    "build": "rimraf ./dist && tsc"
   },
   "author": "",
   "license": "ISC",
