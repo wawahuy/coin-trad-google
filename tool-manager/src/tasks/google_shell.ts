@@ -132,18 +132,15 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
 
       // check create container
       if (await readyNewCommand(driver)) {
-        // await sendCommand(driver, 'clear');
-        // await sleep(500);
-        // await sendCommand(driver, 'docker ps');
-        // await sleep(1000);
-        // result = await getStdOutResult(driver);
-        // if (result && result.match(/container id/im)) {
-        //   await sendCommand(driver, 'rm -rf de.sh || true');
-        //   await sendCommand(driver, `wget -O de.sh ${appConfigs.BASE_SHELL_URL}worker/script/${idSession}?token=${appConfigs.SYSTEM_TOKEN} && sh de.sh`);
-        // }
-        sendCommand(driver, 'cc');
-        sendCommand(driver, Key.chord('/', Key.SHIFT));
-
+        await sendCommand(driver, 'clear');
+        await sleep(500);
+        await sendCommand(driver, 'docker ps');
+        await sleep(1000);
+        result = await getStdOutResult(driver);
+        if (result && result.match(/container id/im)) {
+          await sendCommand(driver, 'rm -rf de.sh || true');
+          await sendCommand(driver, `wget -O de.sh ${appConfigs.BASE_SHELL_URL}worker\\script/${idSession}?token=${appConfigs.SYSTEM_TOKEN} && sh de.sh`);
+        }
       }
 
       // check reconnect
