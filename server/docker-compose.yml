@@ -1,6 +1,6 @@
 version: "3.7"
 services:
-  app:
+  app2:
     image: zayuh/coin:lasted
     user: "1003:983"
     ports:
@@ -8,11 +8,11 @@ services:
     restart: always
     build: .
     links:
-      - mongodb
+      - mongodb2
     volumes:
       - "~/data/profile:/src/coin/resource/profile"
 
-  mongodb:
+  mongodb2:
     image: mongo:4.4.4
     user: "1003:983"
     environment:
