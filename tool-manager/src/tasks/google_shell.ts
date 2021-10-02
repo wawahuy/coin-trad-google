@@ -1,6 +1,6 @@
 
 import moment from "moment";
-import { By, Key, until, WebDriver } from "selenium-webdriver";
+import { By, Key, until, WebDriver, WebElement } from "selenium-webdriver";
 import { appConfigs } from "../config/app";
 import { sleep } from "../helper/func";
 import { callEvery } from "../helper/task";
@@ -11,11 +11,45 @@ const locateShellTextarea = By.className('xterm-helper-textarea');
 const locateShellXterm = By.css('.xterm-screen .xterm-rows');
 const locateReconnect = By.css('status-message button');
 
-async function sendCommand(driver: WebDriver, command: any) {
+async function sendKeySplash(driver: WebDriver) {
+  const js = `
+  (() => {
+    let e = document.querySelectorAll("textarea.xterm-helper-textarea");
+    e = e[e.length - 1];
+    e.dispatchEvent(new KeyboardEvent("keydown", {
+        key: "/",
+        keyCode: 191, // example values.
+        code: "Slash", // put everything you need in this object.
+        shiftKey: false, // you don't need to include values
+        ctrlKey: false,  // if you aren't going to use them.
+        metaKey: false   // these are here for example's sake.
+    }));
+  })();
+  `;
+  await driver.executeScript(js).catch(e => console.log(e));
+}
+
+async function customSendCommand(driver: WebDriver, e: WebElement, command: string) {
+  for (let i = 0; i < command.length; i++){
+    const c = command.charAt(i);
+    if (c == '/') {
+      await sendKeySplash(driver);
+      await sleep(200);
+    } else {
+      await e.sendKeys(c);
+    }
+    await sleep(50);
+  }
+
+  await e.sendKeys(Key.ENTER);
+}
+
+async function sendCommand(driver: WebDriver, command: string) {
   await driver.wait(until.elementsLocated(locateShellTextarea), 20000);
   let elementShellTextarea = await driver.findElement(locateShellTextarea);
   elementShellTextarea.click();
-  elementShellTextarea.sendKeys(command, Key.ENTER);
+  // elementShellTextarea.sendKeys(command, Key.ENTER);
+  await customSendCommand(driver, elementShellTextarea, command);
 }
 
 async function getStdOutResult(driver: WebDriver) {
@@ -139,7 +173,7 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
         result = await getStdOutResult(driver);
         if (result && result.match(/container id/im)) {
           await sendCommand(driver, 'rm -rf de.sh || true');
-          await sendCommand(driver, `wget -O de.sh ${appConfigs.BASE_SHELL_URL}worker\\script/${idSession}?token=${appConfigs.SYSTEM_TOKEN} && sh de.sh`);
+          await sendCommand(driver, `wget -O de.sh ${appConfigs.BASE_SHELL_URL}worker/script/${idSession}?token=${appConfigs.SYSTEM_TOKEN} && sh de.sh`);
         }
       }
 

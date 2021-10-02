@@ -37,15 +37,15 @@ export default class Session {
   private async init() {
     this.pathProfile = getDirUserData(this.userId);
 
-    const establish = await workerService.establish(this.userId).catch(e => null);
-    const establishData = <any>establish?.data;
-    if (!establishData?.status) {
-      return false;
-    }
+    // const establish = await workerService.establish(this.userId).catch(e => null);
+    // const establishData = <any>establish?.data;
+    // if (!establishData?.status) {
+    //   return false;
+    // }
 
-    if (!await this.downloadDataProfile()) {
-      return false;
-    }
+    // if (!await this.downloadDataProfile()) {
+    //   return false;
+    // }
     
     const option = new chrome.Options();
     const profile = path.join(this.pathProfile, this.postfixProfile);
