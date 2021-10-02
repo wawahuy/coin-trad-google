@@ -14,6 +14,7 @@ const locateReconnect = By.css('status-message button');
 async function sendCommand(driver: WebDriver, command: string) {
   await driver.wait(until.elementsLocated(locateShellTextarea), 20000);
   let elementShellTextarea = await driver.findElement(locateShellTextarea);
+  elementShellTextarea.click();
   elementShellTextarea.sendKeys(command, Key.ENTER);
 }
 

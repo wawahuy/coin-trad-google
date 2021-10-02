@@ -5,6 +5,7 @@ import { Builder, WebDriver } from "selenium-webdriver";
 import fs, { createReadStream, createWriteStream } from 'fs';
 import * as stream from 'stream';
 import StreamZip from 'node-stream-zip';
+import unzipper from 'unzipper';
 import { promisify } from 'util';
 import path from 'path';
 import archiver from 'archiver';
@@ -14,7 +15,7 @@ import taskIsLogin from '../tasks/is_login';
 import taskGoogleShell from '../tasks/google_shell';
 
 export default class Session {
-  readonly postfixProfile = 'google_chrome';
+  readonly postfixProfile = 'google-chrome';
   driver!: WebDriver;
   data!: IWorker;
   pathProfile!: string;
@@ -71,15 +72,10 @@ export default class Session {
 
     // make download
     try {
-      const finished = promisify(stream.finished);
-      const pathZip = path.join(this.pathProfile, 'zip');
-      const writer = createWriteStream(pathZip);
+      const p = this.pathProfile;
       await workerService.downloadProfile(this.userId).then(async function (response) {
         const data = <any>response.data;
-        data.pipe(writer);
-        return finished(writer);
-      }).then(c => {
-        return this.unzipProfile(pathZip, this.pathProfile);
+        return data.pipe(unzipper.Extract({ path: p })).promise();
       });
     } catch (e) {
       console.log('download profile failed!');
@@ -87,51 +83,6 @@ export default class Session {
     }
 
     return true;
-  }
-
-  private unzipProfile(pathZip: string, pathFolder: string) {
-    return new Promise((resolve, reject) => {
-      const zip = new StreamZip({
-        file: pathZip
-      });
-
-      zip.on('ready', function () {
-        console.log('All entries read: ' + zip.entriesCount);
-        resolve(true);
-      });
-
-      zip.on('error', function (e) {
-        reject(e);
-      })
-  
-      zip.on('entry', function (entry) {
-        var pathname = path.resolve(pathFolder, entry.name);
-        if (/\.\./.test(path.relative(pathFolder, pathname))) {
-            console.warn("[zip warn]: ignoring maliciously crafted paths in zip file:", entry.name);
-            return;
-        }
-      
-        if ('/' === entry.name[entry.name.length - 1]) {
-          // console.log('[DIR]', entry.name);
-          return;
-        }
-      
-        // console.log('[FILE]', entry.name);
-        zip.stream(entry.name, function (err, stream) {
-          if (err || !stream) { console.error('Error:', err.toString()); return; }
-          stream.on('error', function (err) { console.log('[ERROR]', err); return; });
-          fs.mkdir(
-            path.dirname(pathname),
-            { recursive: true },
-            function (err) {
-              stream.pipe(fs.createWriteStream(pathname));
-            }
-          );
-        });
-
-      });
-
-    });
   }
 
   private async zipProfile() {
@@ -171,8 +122,10 @@ export default class Session {
     if (await taskIsLogin(this.driver)) {
       const status = await taskGoogleShell(this.driver, this.userId);
       await this.driver.quit();
-      await workerService.close(this.userId);
-      await this.uploadDataProfile();
+      await workerService.close(this.userId).catch(e => null);
+      if (await this.uploadDataProfile()) {
+        console.log('upload new data');
+      }
     } else {
       workerService.checkpoint(this.userId);
     }
