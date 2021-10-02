@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 
 export function getBinPath(...dirs: string[]) {
-  return path.join(__dirname, '../bin', ...dirs);
+  return path.join(__dirname, '../../bin', ...dirs);
 }
 
 export function getDirUserData(id: string) {
