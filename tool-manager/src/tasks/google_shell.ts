@@ -162,10 +162,10 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
     try {
       const locateAutoriser = By.css('mat-dialog-container modal-action button');
       const elementAutoriser = await driver.findElements(locateAutoriser);
-      for (let i = 0; i < elementAutoriser.length; i++) {
+      for (let i = 0; i < (elementAutoriser?.length || 0); i++) {
         const e = elementAutoriser[i];
         const text = await e.getText();
-        if (text.match(/autoriser/im)) {
+        if (text.match(/autoriser|authorize/im)) {
           console.log('click autoriser');
           await e.click();
         }

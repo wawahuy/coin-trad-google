@@ -50,7 +50,17 @@ export default class Session {
     const isWin = process.platform === "win32";
     option.addArguments("--user-data-dir=" + profile);
     if (!isWin) {
-      option.addArguments('disable-dev-shm-usage');
+      // option.addArguments('disable-dev-shm-usage');
+      option.addArguments('headless');
+      option.addArguments('disable-gpu');
+      option.addArguments('disable-notifications');
+      option.addArguments('disable-popup-blocking');
+      option.addArguments('disable-infobars');
+      // headless
+      // disable-gpu
+      // disable-notifications
+      // disable-popup-blocking
+      // disable-infobars
     }
 
     this.driver = await new Builder()
@@ -142,3 +152,6 @@ export default class Session {
 
 // headless
 // disable-gpu
+// disable-notifications
+// disable-popup-blocking
+// disable-infobars
