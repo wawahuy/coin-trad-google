@@ -1,14 +1,12 @@
-import { context } from './context';
 import chrome from 'selenium-webdriver/chrome';
-import { IWorker } from './../models/worker';
 import { Builder, WebDriver } from "selenium-webdriver";
-import fs, { createReadStream, createWriteStream } from 'fs';
-import * as stream from 'stream';
-import StreamZip from 'node-stream-zip';
+import fs from 'fs';
 import unzipper from 'unzipper';
-import { promisify } from 'util';
 import path from 'path';
 import archiver from 'archiver';
+import rimraf from 'rimraf';
+import { context } from './context';
+import { IWorker } from './../models/worker';
 import { getDirUserData } from "../helper/dir";
 import * as workerService from '../services/worker';
 import taskIsLogin from '../tasks/is_login';
@@ -66,7 +64,7 @@ export default class Session {
   private async downloadDataProfile() {
     // make folder
     if (fs.existsSync(this.pathProfile)) {
-      fs.rmdirSync(this.pathProfile, { recursive: true });
+      rimraf.sync(this.pathProfile);
     }
     fs.mkdirSync(this.pathProfile, { recursive: true });
 
@@ -128,6 +126,14 @@ export default class Session {
       }
     } else {
       workerService.checkpoint(this.userId);
+      // console.log('gg -------------------------------');
+      // setTimeout(async () => {
+      //   await this.driver.quit();
+      //   await workerService.close(this.userId).catch(e => null);
+      //   if (await this.uploadDataProfile()) {
+      //     console.log('upload new data');
+      //   } 
+      // }, 100000);
     }
 
     context.sessions = context.sessions.filter(s => s != this);
