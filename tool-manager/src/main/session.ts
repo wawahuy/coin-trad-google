@@ -51,7 +51,7 @@ export default class Session {
     option.addArguments("--user-data-dir=" + profile);
     if (!isWin) {
       option.addArguments('disable-dev-shm-usage');
-      // option.addArguments('headless');
+      option.addArguments('headless');
       option.addArguments('disable-gpu');
       option.addArguments('disable-notifications');
       option.addArguments('disable-popup-blocking');
