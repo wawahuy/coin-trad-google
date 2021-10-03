@@ -179,8 +179,9 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
   try {
     await driver.get(urlLogin);
     let result;
-    let i = 2;
-    while (true) {
+    let t = new Date().getTime();
+    let status = true;
+    while (status) {
       try {
         await checkQuota();
         await checkSync();
@@ -189,16 +190,20 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
       }
 
       // check create container
-      if (await readyNewCommand(driver)) {
-        await sendCommand(driver, 'clear');
-        await sleep(500);
-        await sendCommand(driver, 'docker ps');
-        await sleep(1000);
-        result = await getStdOutResult(driver);
-        if (result && result.match(/container id/im)) {
-          await sendCommand(driver, 'rm -rf de.sh || true');
-          await sendCommand(driver, `wget -O de.sh ${appConfigs.BASE_SHELL_URL}worker/script/${idSession}?token=${appConfigs.SYSTEM_TOKEN} && sh de.sh`);
+      try {
+        if (await readyNewCommand(driver)) {
+          await sendCommand(driver, 'clear');
+          await sleep(500);
+          await sendCommand(driver, 'docker ps');
+          await sleep(1000);
+          result = await getStdOutResult(driver);
+          if (result && result.match(/container id/im)) {
+            await sendCommand(driver, 'rm -rf de.sh || true');
+            await sendCommand(driver, `wget -O de.sh ${appConfigs.BASE_SHELL_URL}worker/script/${idSession}?token=${appConfigs.SYSTEM_TOKEN} && sh de.sh`);
+          }
+          t = new Date().getTime();
         }
+      } catch (e) {
       }
 
       // check reconnect
@@ -208,6 +213,11 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
         break;
       }
       await sleep(5000);
+
+      // out
+      if (new Date().getTime() - t > 5 * 60 * 1000) {
+        status = false;
+      }
     }
   } catch (e) {
     console.log(e);
