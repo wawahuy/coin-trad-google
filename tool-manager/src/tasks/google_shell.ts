@@ -165,7 +165,7 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
       for (let i = 0; i < (elementAutoriser?.length || 0); i++) {
         const e = elementAutoriser[i];
         const text = await e.getText();
-        if (text.match(/autoriser|authorize/im)) {
+        if (text.match(/autoriser/gim) || text.match(/authorize/gim)) {
           console.log('click autoriser');
           await e.click();
         }
