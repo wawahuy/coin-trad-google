@@ -120,10 +120,10 @@ export default class Session {
     if (await taskIsLogin(this.driver)) {
       const status = await taskGoogleShell(this.driver, this.userId);
       await this.driver.quit();
-      await workerService.close(this.userId).catch(e => null);
-      if (await this.uploadDataProfile()) {
-        console.log('upload new data');
-      }
+      // await workerService.close(this.userId).catch(e => null);
+      // if (await this.uploadDataProfile()) {
+      //   console.log('upload new data');
+      // }
     } else {
       workerService.checkpoint(this.userId);
       // console.log('gg -------------------------------');
