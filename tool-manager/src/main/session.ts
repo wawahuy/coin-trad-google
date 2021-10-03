@@ -139,3 +139,6 @@ export default class Session {
     context.sessions = context.sessions.filter(s => s != this);
   }
 }
+
+// headless
+// disable-gpu

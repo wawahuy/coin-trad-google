@@ -153,6 +153,29 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
     return true;
   });
 
+  /**
+   * mat-dialog-container modal-action button .mat-button-wrapper Autoriser
+   * 
+   * 
+   */
+  let checkAutoriser = callEvery(5000, async function () {
+    try {
+      const locateAutoriser = By.css('mat-dialog-container modal-action button');
+      const elementAutoriser = await driver.findElements(locateAutoriser);
+      for (let i = 0; i < elementAutoriser.length; i++) {
+        const e = elementAutoriser[i];
+        const text = await e.getText();
+        if (text.match(/autoriser/im)) {
+          console.log('click autoriser');
+          await e.click();
+        }
+      }
+    } catch (e) { 
+      console.log(e);
+    }
+    return true;
+  });
+
   try {
     await driver.get(urlLogin);
     let result;
@@ -161,6 +184,7 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
       try {
         await checkQuota();
         await checkSync();
+        await checkAutoriser();
       } catch (e) {
       }
 
