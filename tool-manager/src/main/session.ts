@@ -122,23 +122,27 @@ export default class Session {
   }
 
   private async mainLoop() {
-    if (await taskIsLogin(this.driver)) {
-      const status = await taskGoogleShell(this.driver, this.userId);
-      await this.driver.quit();
-      // await workerService.close(this.userId).catch(e => null);
-      // if (await this.uploadDataProfile()) {
-      //   console.log('upload new data');
-      // }
-    } else {
-      workerService.checkpoint(this.userId);
-      // console.log('gg -------------------------------');
-      // setTimeout(async () => {
-      //   await this.driver.quit();
-      //   await workerService.close(this.userId).catch(e => null);
-      //   if (await this.uploadDataProfile()) {
-      //     console.log('upload new data');
-      //   } 
-      // }, 100000);
+    try {
+      if (await taskIsLogin(this.driver)) {
+        const status = await taskGoogleShell(this.driver, this.userId);
+        await this.driver.quit();
+        // await workerService.close(this.userId).catch(e => null);
+        // if (await this.uploadDataProfile()) {
+        //   console.log('upload new data');
+        // }
+      } else {
+        workerService.checkpoint(this.userId);
+        // console.log('gg -------------------------------');
+        // setTimeout(async () => {
+        //   await this.driver.quit();
+        //   await workerService.close(this.userId).catch(e => null);
+        //   if (await this.uploadDataProfile()) {
+        //     console.log('upload new data');
+        //   } 
+        // }, 100000);
+      }
+    } catch (e) {
+      console.log(e);
     }
 
     context.sessions = context.sessions.filter(s => s != this);
