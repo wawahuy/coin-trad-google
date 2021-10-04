@@ -35,15 +35,15 @@ export default class Session {
   private async init() {
     this.pathProfile = getDirUserData(this.userId);
 
-    const establish = await workerService.establish(this.userId).catch(e => null);
-    const establishData = <any>establish?.data;
-    if (!establishData?.status) {
-      return false;
-    }
+    // const establish = await workerService.establish(this.userId).catch(e => null);
+    // const establishData = <any>establish?.data;
+    // if (!establishData?.status) {
+    //   return false;
+    // }
 
-    if (!await this.downloadDataProfile()) {
-      return false;
-    }
+    // if (!await this.downloadDataProfile()) {
+    //   return false;
+    // }
     
     const option = new chrome.Options();
     const profile = path.join(this.pathProfile, this.postfixProfile);
@@ -126,10 +126,15 @@ export default class Session {
       if (await taskIsLogin(this.driver)) {
         const status = await taskGoogleShell(this.driver, this.userId);
         await this.driver.quit();
-        // await workerService.close(this.userId).catch(e => null);
-        // if (await this.uploadDataProfile()) {
-        //   console.log('upload new data');
-        // }
+        
+        // debug
+        const isWin = process.platform === "win32";
+        if (isWin) {
+          await workerService.close(this.userId).catch(e => null);
+          if (await this.uploadDataProfile()) {
+            console.log('upload new data');
+          }
+        }
       } else {
         workerService.checkpoint(this.userId);
       }

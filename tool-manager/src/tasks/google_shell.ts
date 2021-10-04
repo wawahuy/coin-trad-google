@@ -47,7 +47,7 @@ async function customSendCommand(driver: WebDriver, e: WebElement, command: stri
 async function sendCommand(driver: WebDriver, command: string) {
   await driver.wait(until.elementsLocated(locateShellTextarea), 20000);
   let elementShellTextarea = await driver.findElement(locateShellTextarea);
-  elementShellTextarea.click();
+  // elementShellTextarea.click();
   await customSendCommand(driver, elementShellTextarea, command);
 }
 
@@ -132,7 +132,7 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
     const locateClose = By.css('mat-dialog-container modal-action button');
     await driver.wait(until.elementsLocated(locateClose), 5000);
     const elementClose = await driver.findElement(locateClose);
-    elementClose.click();
+    await elementClose.click();
 
     console.log('quota sync', quotaCurrent, '/', quotaMax)
     workerService.sync(idSession, { 
@@ -160,13 +160,13 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
    */
   let checkAutoriser = callEvery(5000, async function () {
     try {
-      const locateAutoriser = By.css('mat-dialog-container modal-action button');
+      const locateAutoriser = By.css('mat-dialog-container modal-action button .mat-button-wrapper');
       const elementAutoriser = await driver.findElements(locateAutoriser);
       for (let i = 0; i < (elementAutoriser?.length || 0); i++) {
         const e = elementAutoriser[i];
         const text = await e.getText();
         if (text.match(/autoriser/gim) || text.match(/authorize/gim)) {
-          console.log('click autoriser');
+          console.log('---------------- click autoriser');
           await e.click();
         }
       }
