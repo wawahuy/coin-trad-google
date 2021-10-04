@@ -93,7 +93,7 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
     const locateOption = By.css('cloudshell-action-controls more-button button');
     await driver.wait(until.elementsLocated(locateOption), 5000);
     const elementOption = await driver.findElement(locateOption);
-    elementOption.click();
+    await elementOption.click();
     
     // click quota
     const locateQuota = By.css('#cdk-overlay-1 button');
@@ -102,7 +102,7 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
     for (let i = 0; i < elementButton.length; i++) {
       const e = elementButton[i];
       if ((await e.getText()).match(/data_usage/im)) {
-        e.click();
+        await e.click();
         break;
       }
     }
@@ -162,14 +162,18 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
     try {
       const locateAutoriser = By.css('mat-dialog-container modal-action button .mat-button-wrapper');
       const elementAutoriser = await driver.findElements(locateAutoriser);
+      const test = [];
       for (let i = 0; i < (elementAutoriser?.length || 0); i++) {
         const e = elementAutoriser[i];
         const text = await e.getText();
         if (text.match(/autoriser/gim) || text.match(/authorize/gim)) {
           console.log('---------------- click autoriser');
           await e.click();
+        } else {
+          test.push(text);
         }
       }
+      console.log('debug', test);
     } catch (e) { 
       // console.error(e);
     }
