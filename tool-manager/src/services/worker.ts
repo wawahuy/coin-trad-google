@@ -23,6 +23,10 @@ export async function checkpoint(id: string) {
   return axiosClient.post("worker/checkpoint", { id });
 }
 
+export async function disabled(id: string) {
+  return axiosClient.post("worker/disabled", { id });
+}
+
 export async function getScript(id: string) {
   return axiosClient.get("worker/script/" + id);
 }

@@ -132,14 +132,6 @@ export default class Session {
         // }
       } else {
         workerService.checkpoint(this.userId);
-        // console.log('gg -------------------------------');
-        // setTimeout(async () => {
-        //   await this.driver.quit();
-        //   await workerService.close(this.userId).catch(e => null);
-        //   if (await this.uploadDataProfile()) {
-        //     console.log('upload new data');
-        //   } 
-        // }, 100000);
       }
     } catch (e) {
       console.log(e);
@@ -148,9 +140,3 @@ export default class Session {
     context.sessions = context.sessions.filter(s => s != this);
   }
 }
-
-// headless
-// disable-gpu
-// disable-notifications
-// disable-popup-blocking
-// disable-infobars

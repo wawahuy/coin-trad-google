@@ -48,7 +48,6 @@ async function sendCommand(driver: WebDriver, command: string) {
   await driver.wait(until.elementsLocated(locateShellTextarea), 20000);
   let elementShellTextarea = await driver.findElement(locateShellTextarea);
   elementShellTextarea.click();
-  // elementShellTextarea.sendKeys(command, Key.ENTER);
   await customSendCommand(driver, elementShellTextarea, command);
 }
 
@@ -135,6 +134,7 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
     const elementClose = await driver.findElement(locateClose);
     elementClose.click();
 
+    console.log('quota sync', quotaCurrent, '/', quotaMax)
     workerService.sync(idSession, { 
       quota: quotaCurrent,
       quota_max: quotaMax,
@@ -149,7 +149,7 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
    * 
    */
   let checkSync = callEvery(10000, async function () {
-    workerService.sync(idSession, {});
+    await workerService.sync(idSession, {}).catch(e => null);
     return true;
   });
 
@@ -171,9 +171,32 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
         }
       }
     } catch (e) { 
-      console.log(e);
+      // console.error(e);
     }
     return true;
+  });
+
+  /**
+   * Check disabled
+   * 
+   * 
+   */
+  let checkDisabled = callEvery(5000, async function () {
+    try {
+      const locateDisable = By.css('mat-dialog-container dialog-overlay h1');
+      const elementDisable = await driver.findElement(locateDisable);
+      if (elementDisable) {
+        const text = await elementDisable.getText();
+        if (text?.match(/disabled/gim)) {
+          console.log('disabled call');
+          await workerService.disabled(idSession).then(e => console.log('disabled success')).catch(e => null);
+          return true;
+        }
+      }
+    } catch (e) { 
+      // console.error(e);
+    }
+    return false;
   });
 
   try {
@@ -183,10 +206,14 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
     let status = true;
     while (status) {
       try {
+        if (await checkDisabled()) {
+          status = false;
+        }
         await checkQuota();
         await checkSync();
         await checkAutoriser();
       } catch (e) {
+        // console.error(e);
       }
 
       // check create container
@@ -204,6 +231,7 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
           t = new Date().getTime();
         }
       } catch (e) {
+        // console.error(e);
       }
 
       // check reconnect
@@ -220,6 +248,8 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
       }
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
+
+  console.log('end ----');
 }

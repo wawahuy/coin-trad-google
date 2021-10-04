@@ -7,5 +7,6 @@ export enum WorkerType {
 export enum WorkerStatus {
   Idle = 1,
   Running = 2,
-  Checkpoint = 3
+  Checkpoint = 3,
+  Disabled = 4
 }

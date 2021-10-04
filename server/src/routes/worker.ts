@@ -1,6 +1,7 @@
 import express, { Router } from "express";
 import workerCheckpoint from "../modules/worker/checkpoint";
 import workerClose from "../modules/worker/close";
+import workerDisabled from "../modules/worker/disabled";
 import workerEstablish from "../modules/worker/establish";
 import workerGet from "../modules/worker/get";
 import workerProfileDownload from "../modules/worker/profile_download";
@@ -13,6 +14,7 @@ routerWorker.post('/establish', workerEstablish);
 routerWorker.post('/sync', workerSync);
 routerWorker.post('/close', workerClose);
 routerWorker.post('/checkpoint', workerCheckpoint);
+routerWorker.post('/disabled', workerDisabled);
 routerWorker.post('/profile/:id', workerProfileUpload);
 routerWorker.get('/profile/:id', workerProfileDownload);
 routerWorker.get('/script/:id', workerScript);

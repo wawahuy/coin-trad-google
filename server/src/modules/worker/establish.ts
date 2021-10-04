@@ -10,10 +10,17 @@ export default async function workerEstablish(req: Request, res: Response) {
   const filter: FilterQuery<IWorkerDocument> = {
     _id: new Types.ObjectId(id),
     type: WorkerType.Worker,
-    status: {
-      $ne: WorkerStatus.Checkpoint as number
-    },
     $and: [
+      {
+        status: {
+          $ne: WorkerStatus.Checkpoint as number
+        }
+      },
+      {
+        status: {
+          $ne: WorkerStatus.Disabled as number
+        }
+      },
       {
         $or: [
           {
