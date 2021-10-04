@@ -18,6 +18,10 @@ export default class Session {
   data!: IWorker;
   pathProfile!: string;
 
+  public get id() {
+    return this.userId;
+  }
+
   private constructor(
     private userId: string
   ) {
@@ -143,5 +147,27 @@ export default class Session {
     }
 
     context.sessions = context.sessions.filter(s => s != this);
+  }
+
+  /**
+   * Call when init
+   * @returns true - allows call sync loop
+   */
+  public async asyncInit() {
+    return true;
+  }
+
+  /**
+   * Call when tick loop
+   * @returns true - allows next tick
+   */
+  public async asyncLoop() {
+    return true;
+  }
+
+  /**
+   * Call close session
+   */
+  public async asyncClose() {
   }
 }
