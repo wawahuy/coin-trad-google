@@ -11,6 +11,8 @@ import { getDirUserData } from "../helper/dir";
 import * as workerService from '../services/worker';
 import taskIsLogin from '../tasks/is_login';
 import taskGoogleShell from '../tasks/google_shell';
+import { log } from '../helper/func';
+import { SessionStatus } from '../models/session';
 
 export default class Session {
   readonly postfixProfile = 'google-chrome';
@@ -30,7 +32,6 @@ export default class Session {
   static async build(userId: string) {
     const session = new Session(userId);
     if (await session.init()) {
-      session.mainLoop();
       return session;
     }
     return false;
@@ -85,7 +86,7 @@ export default class Session {
         return data.pipe(unzipper.Extract({ path: p })).promise();
       });
     } catch (e) {
-      console.log('download profile failed!');
+      log('download profile failed', this.id);
       return false;
     }
 
@@ -97,8 +98,8 @@ export default class Session {
       let output = fs.createWriteStream(path.join(this.pathProfile, 'new'));
       let archive = archiver('zip');
 
-      output.on('close', function () {
-        console.log('zip success');
+      output.on('close', () => {
+        log('zip success', this.id);
         resolve(true);
       });
 
@@ -125,36 +126,20 @@ export default class Session {
     return uploadData?.status;
   }
 
-  private async mainLoop() {
-    try {
-      if (await taskIsLogin(this.driver)) {
-        const status = await taskGoogleShell(this.driver, this.userId);
-        await this.driver.quit();
-        
-        // debug
-        const isWin = process.platform === "win32";
-        if (isWin) {
-          await workerService.close(this.userId).catch(e => null);
-          if (await this.uploadDataProfile()) {
-            console.log('upload new data');
-          }
-        }
-      } else {
-        workerService.checkpoint(this.userId);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-
-    context.sessions = context.sessions.filter(s => s != this);
-  }
-
   /**
    * Call when init
    * @returns true - allows call sync loop
    */
   public async asyncInit() {
-    return true;
+    try {
+      if (await taskIsLogin(this.driver)) {
+        return SessionStatus.Next;
+      } else {
+        return SessionStatus.Cancel;
+      }
+    } catch (e) {
+      return SessionStatus.Error;
+    }
   }
 
   /**
@@ -162,12 +147,29 @@ export default class Session {
    * @returns true - allows next tick
    */
   public async asyncLoop() {
-    return true;
+    try {
+      await this.driver.getTitle();
+      return SessionStatus.Next;
+    } catch {
+      return SessionStatus.Error;
+    }
+    // return await taskGoogleShell(this.driver, this.userId);
   }
 
   /**
    * Call close session
    */
   public async asyncClose() {
+    try {
+      await this.driver.quit()
+    } catch (e) {
+    }
+    const isWin = process.platform === "win32";
+    if (isWin) {
+      await workerService.close(this.userId).catch(e => null);
+      if (await this.uploadDataProfile().catch(e => null)) {
+        log('upload new data', this.userId);
+      }
+    }
   }
 }

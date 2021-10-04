@@ -6,6 +6,7 @@ import * as workerService from '../services/worker';
 import Session from './session';
 import { log } from '../helper/func';
 import { callEvery } from '../helper/task';
+import { SessionStatus } from '../models/session';
 
 async function takeNewSession() {
   // sync detail
@@ -33,11 +34,20 @@ async function takeNewSession() {
       const workerID = workerNextData.data;
       log('session init', workerID);
 
-      // const session = await Session.build(workerID);
-      // if (session) {
-      //   log('session connected', workerID);
-      //   context.sessions.push(session);
-      // }
+      const session = await Session.build(workerID);
+      if (session) {
+        const result = await session.asyncInit();
+        if (result == SessionStatus.Next) {
+          log('session connected', workerID);
+          context.sessions.push(session);
+        } else if (result == SessionStatus.Cancel) {
+          log('session checkpoint', workerID);
+          workerService.checkpoint(workerID);
+        } else {
+          log('session create failed');
+        }
+      }
+
     } else {
       log('session get failed');
     }
@@ -83,7 +93,7 @@ export default async function main() {
       if (countRunning >= threads || i == sessions.length) {
         await Promise.all(sessionsRunning.map(async function (session) {
           const result = await session.asyncLoop();
-          if (!result) {
+          if (result != SessionStatus.Next) {
             sessionsRemove.push(session);
           }
         }));
@@ -95,8 +105,9 @@ export default async function main() {
     // remove session
     for (let i = 0; i < sessionsRemove.length; i++) {
       const session = sessionsRemove[i];
-      log('session close', session.id);
       await sessionsRemove[i].asyncClose();
+      context.sessions = context.sessions.filter(s => s != session);
+      log('session close', session.id);
     }
 
     /**
