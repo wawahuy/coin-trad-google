@@ -10,6 +10,9 @@ export default async function workerSync(req: Request, res: Response) {
   const quota = req.body.quota;
   const quota_max = req.body.quota_max;
   const quota_reset = req.body.quota_reset;
+  const cpu = req.body.cpu;
+  const ram = req.body.ram;
+  const ram_max = req.body.ram_max;
   const model = await ModelWorker.findOne({ _id: new Types.ObjectId(id), type: WorkerType.Worker });
   if (model) {
     let dataNew: IWorker = {};
@@ -17,6 +20,12 @@ export default async function workerSync(req: Request, res: Response) {
       dataNew.quota = quota;
       dataNew.quota_max = quota_max;
       dataNew.quota_reset = moment(quota_reset).toDate();
+    }
+
+    if (cpu && ram_max && ram) {
+      dataNew.cpu = Number(cpu);
+      dataNew.ram_max = Number(ram_max);
+      dataNew.ram = Number(ram);
     }
     
     let data: UpdateQuery<IWorkerDocument> = {
