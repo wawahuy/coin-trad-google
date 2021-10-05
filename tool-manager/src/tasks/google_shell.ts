@@ -2,8 +2,8 @@
 import moment from "moment";
 import { By, Key, until, WebDriver, WebElement } from "selenium-webdriver";
 import { appConfigs } from "../config/app";
-import { sleep } from "../helper/func";
-import { callEvery } from "../helper/task";
+import { log, sleep } from "../helper/func";
+import { callEvery, callOnce, TaskStatus } from "../helper/task";
 import * as workerService from '../services/worker';
 
 const urlLogin = "https://shell.cloud.google.com/";
@@ -40,14 +40,12 @@ async function customSendCommand(driver: WebDriver, e: WebElement, command: stri
     }
     await sleep(50);
   }
-
   await e.sendKeys(Key.ENTER);
 }
 
 async function sendCommand(driver: WebDriver, command: string) {
   await driver.wait(until.elementsLocated(locateShellTextarea), 20000);
   let elementShellTextarea = await driver.findElement(locateShellTextarea);
-  // elementShellTextarea.click();
   await customSendCommand(driver, elementShellTextarea, command);
 }
 
@@ -83,12 +81,12 @@ async function readyNewCommand(driver: WebDriver) {
   return false;
 }
 
-export default async function taskGoogleShell(driver: WebDriver, idSession: string) {
+export default function taskGoogleShell(driver: WebDriver, idSession: string) {
   /**
    * QUOTA
    * 
    */
-  let checkQuota = callEvery(30000, async function () {
+  const checkQuota = callEvery(30000, async function () {
     // open option
     const locateOption = By.css('cloudshell-action-controls more-button button');
     await driver.wait(until.elementsLocated(locateOption), 5000);
@@ -148,7 +146,7 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
    * Sync
    * 
    */
-  let checkSync = callEvery(10000, async function () {
+  const checkSync = callEvery(10000, async function () {
     await workerService.sync(idSession, {}).catch(e => null);
     return true;
   });
@@ -158,24 +156,30 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
    * 
    * 
    */
-  let checkAutoriser = callEvery(5000, async function () {
+  const checkAutoriser = callEvery(5000, async function () {
     try {
-      const locateAutoriser = By.css('mat-dialog-container modal-action button .mat-button-wrapper');
-      const elementAutoriser = await driver.findElements(locateAutoriser);
-      const test = [];
-      for (let i = 0; i < (elementAutoriser?.length || 0); i++) {
-        const e = elementAutoriser[i];
-        const text = await e.getText();
-        if (text.match(/autoriser/gim) || text.match(/authorize/gim)) {
-          console.log('---------------- click autoriser');
-          await e.click();
-        } else {
-          test.push(text);
+      const locateDialog = By.css('mat-dialog-container');
+      const elementDialog = await driver.findElements(locateDialog);
+      for (let k = 0; k < (elementDialog?.length || 0); k++) {
+        const locateAutoriser = By.css('modal-action button .mat-button-wrapper');
+        const elementAutoriser = await elementDialog[k].findElements(locateAutoriser);
+        const test = [];
+        for (let i = 0; i < (elementAutoriser?.length || 0); i++) {
+          const e = elementAutoriser[i];
+          const text = await e.getText();
+          if (text.match(/autoriser/gim) || text.match(/authorize/gim)) {
+            log('---------------- click autoriser');
+            await e.click();
+          } else if (text.match(/close/gim)) {
+            log('---------------- click close');
+            await e.click();
+          } else {
+            test.push(text);
+          }
         }
+        console.log('debug', test);
       }
-      console.log('debug', test);
     } catch (e) { 
-      // console.error(e);
     }
     return true;
   });
@@ -185,7 +189,7 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
    * 
    * 
    */
-  let checkDisabled = callEvery(5000, async function () {
+  const checkDisabled = callEvery(5000, async function () {
     try {
       const locateDisable = By.css('mat-dialog-container dialog-overlay h1');
       const elementDisable = await driver.findElement(locateDisable);
@@ -198,62 +202,69 @@ export default async function taskGoogleShell(driver: WebDriver, idSession: stri
         }
       }
     } catch (e) { 
-      // console.error(e);
     }
     return false;
   });
 
-  try {
+  /**
+   * Open shell
+   * 
+   */
+  const openShell = callOnce(async function () {
+    log('open shell', idSession);
     await driver.get(urlLogin);
-    let result;
-    let t = new Date().getTime();
-    let status = true;
-    while (status) {
+    return true;
+  });
+
+  let tSendCommand = new Date().getTime();
+
+  return async function (...args: any[]) {
+    try {
+      await openShell();
+
+      // sync detail
       try {
-        if (await checkDisabled()) {
-          status = false;
+        if (await checkDisabled() == TaskStatus.True) {
+          return false;
         }
+        await checkAutoriser();
         await checkQuota();
         await checkSync();
-        await checkAutoriser();
       } catch (e) {
-        // console.error(e);
       }
 
-      // check create container
+      // check & create container
       try {
         if (await readyNewCommand(driver)) {
           await sendCommand(driver, 'clear');
           await sleep(500);
           await sendCommand(driver, 'docker ps');
           await sleep(1000);
-          result = await getStdOutResult(driver);
+          let result = await getStdOutResult(driver);
           if (result && result.match(/container id/im)) {
             await sendCommand(driver, 'rm -rf de.sh || true');
             await sendCommand(driver, `wget -O de.sh ${appConfigs.BASE_SHELL_URL}worker/script/${idSession}?token=${appConfigs.SYSTEM_TOKEN} && sh de.sh`);
+            log('create container....', idSession);
           }
-          t = new Date().getTime();
+          tSendCommand = new Date().getTime();
         }
       } catch (e) {
-        // console.error(e);
       }
 
       // check reconnect
       let el = await driver.findElements(locateReconnect);
       if (el.length > 1) {
-        console.log('disconnect');
-        break;
+        log('disconnect', idSession);
+        return false;
       }
-      await sleep(5000);
 
-      // out
-      if (new Date().getTime() - t > 5 * 60 * 1000) {
-        status = false;
+      // check no send command
+      if (new Date().getTime() - tSendCommand > 5 * 60 * 1000) {
+        return false;
       }
+    } catch (e) {
+      return false;
     }
-  } catch (e) {
-    console.error(e);
+    return true;
   }
-
-  console.log('end ----');
 }

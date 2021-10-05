@@ -1,3 +1,4 @@
+import { callEvery, funcCall, TaskStatus } from './../helper/task';
 import chrome from 'selenium-webdriver/chrome';
 import { Builder, WebDriver } from "selenium-webdriver";
 import fs from 'fs';
@@ -19,6 +20,7 @@ export default class Session {
   driver!: WebDriver;
   data!: IWorker;
   pathProfile!: string;
+  funcTaskGoogleShell!: funcCall;
 
   public get id() {
     return this.userId;
@@ -54,13 +56,13 @@ export default class Session {
     const profile = path.join(this.pathProfile, this.postfixProfile);
     const isWin = process.platform === "win32";
     option.addArguments("--user-data-dir=" + profile);
+    option.addArguments('disable-notifications');
+    option.addArguments('disable-popup-blocking');
+    option.addArguments('disable-infobars');
     if (!isWin) {
       option.addArguments('disable-dev-shm-usage');
       option.addArguments('headless');
       option.addArguments('disable-gpu');
-      option.addArguments('disable-notifications');
-      option.addArguments('disable-popup-blocking');
-      option.addArguments('disable-infobars');
     }
 
     this.driver = await new Builder()
@@ -133,6 +135,7 @@ export default class Session {
   public async asyncInit() {
     try {
       if (await taskIsLogin(this.driver)) {
+        this.funcTaskGoogleShell = callEvery(10000, taskGoogleShell(this.driver, this.userId));
         return SessionStatus.Next;
       } else {
         return SessionStatus.Cancel;
@@ -148,12 +151,14 @@ export default class Session {
    */
   public async asyncLoop() {
     try {
-      await this.driver.getTitle();
+      const result = await this.funcTaskGoogleShell();
+      if (result == TaskStatus.False) {
+        return SessionStatus.Cancel;
+      }
       return SessionStatus.Next;
     } catch {
       return SessionStatus.Error;
     }
-    // return await taskGoogleShell(this.driver, this.userId);
   }
 
   /**

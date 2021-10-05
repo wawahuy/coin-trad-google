@@ -115,7 +115,7 @@ export default async function main() {
      * 
      */
     const dt = new Date().getTime() - t;
-    setTimeout(running, Math.max(dt, sleep));
+    setTimeout(running, Math.max(sleep - dt, 100));
   }
   running();
 }
