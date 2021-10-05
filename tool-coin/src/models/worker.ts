@@ -2,6 +2,9 @@ export interface WorkerSyncRequest {
   quota?: number;
   quota_max?: number;
   quota_reset?: Date;
+  cpu?: number;
+  ram_max?: number;
+  ram?: number;
 }
 
 export enum WorkerType {

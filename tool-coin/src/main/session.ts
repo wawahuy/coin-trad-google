@@ -166,7 +166,9 @@ export default class Session {
    */
   public async asyncClose() {
     try {
-      await this.driver.quit()
+      await this.driver.get('https://zayuh.me');
+      await this.driver.switchTo().alert().accept();
+      await this.driver.quit();
     } catch (e) {
     }
     const isWin = process.platform === "win32";

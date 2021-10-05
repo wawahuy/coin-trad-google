@@ -82,16 +82,21 @@ async function readyNewCommand(driver: WebDriver) {
 }
 
 export default function taskGoogleShell(driver: WebDriver, idSession: string) {
+  let tSendCommand = new Date().getTime();
+
   /**
    * QUOTA
    * 
    */
   const checkQuota = callEvery(30000, async function () {
     // open option
-    const locateOption = By.css('cloudshell-action-controls more-button button');
-    await driver.wait(until.elementsLocated(locateOption), 5000);
-    const elementOption = await driver.findElement(locateOption);
-    await elementOption.click();
+    try {
+      const locateOption = By.css('cloudshell-action-controls more-button button');
+      await driver.wait(until.elementsLocated(locateOption), 5000);
+      const elementOption = await driver.findElement(locateOption);
+      await elementOption.click();
+    } catch (e) {
+    }
     
     // click quota
     const locateQuota = By.css('#cdk-overlay-1 button');
@@ -132,7 +137,7 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string) {
     const elementClose = await driver.findElement(locateClose);
     await elementClose.click();
 
-    console.log('quota sync', quotaCurrent, '/', quotaMax)
+    log('quota sync', quotaCurrent, '/', quotaMax)
     workerService.sync(idSession, { 
       quota: quotaCurrent,
       quota_max: quotaMax,
@@ -147,7 +152,40 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string) {
    * 
    */
   const checkSync = callEvery(10000, async function () {
-    await workerService.sync(idSession, {}).catch(e => null);
+    if (await readyNewCommand(driver)) {
+      await sendCommand(driver, 'clear');
+      await sleep(300);
+      await sendCommand(driver, 'sh cpu.sh');
+      await sleep(1000);
+      let result = await getStdOutResult(driver);
+
+      // get cpu
+      const pattern = /^(?<cpu>[0-9\.]+)\|(?<mem_total>[0-9\.]+)\|(?<mem_free>[0-9\.]+)$/im;
+      if (result) {
+        const e = pattern.exec(result);
+        if (e && e.groups) {
+          const cpu = Number(e.groups['cpu'] ?? 0);
+          const mem_total = Number(e.groups['mem_total'] ?? 0);
+          const mem_free = Number(e.groups['mem_free'] ?? 0);
+          log('device sync', cpu, mem_free, mem_total);
+
+          await workerService.sync(idSession, { 
+            cpu,
+            ram_max: mem_total,
+            ram: mem_free
+          });
+        }
+      }
+
+      // down shellscript
+      const patternNon = /sh: cpu\.sh/im;
+      if (result && result.match(patternNon)) {
+        await sendCommand(driver, 'rm -rf cpu.sh || true');
+        await sendCommand(driver, `wget -O cpu.sh ${appConfigs.BASE_SHELL_URL}resource/cpu.sh`);
+      }
+
+      tSendCommand = new Date().getTime();
+    }
     return true;
   });
 
@@ -196,8 +234,8 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string) {
       if (elementDisable) {
         const text = await elementDisable.getText();
         if (text?.match(/disabled/gim)) {
-          console.log('disabled call');
-          await workerService.disabled(idSession).then(e => console.log('disabled success')).catch(e => null);
+          log('disabled call');
+          await workerService.disabled(idSession).then(e => log('disabled success')).catch(e => null);
           return true;
         }
       }
@@ -216,7 +254,6 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string) {
     return true;
   });
 
-  let tSendCommand = new Date().getTime();
 
   return async function (...args: any[]) {
     try {
@@ -229,6 +266,11 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string) {
         }
         await checkAutoriser();
         await checkQuota();
+      } catch (e) {
+      }
+
+      // check & get device info
+      try {
         await checkSync();
       } catch (e) {
       }
@@ -237,7 +279,7 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string) {
       try {
         if (await readyNewCommand(driver)) {
           await sendCommand(driver, 'clear');
-          await sleep(500);
+          await sleep(300);
           await sendCommand(driver, 'docker ps');
           await sleep(1000);
           let result = await getStdOutResult(driver);
