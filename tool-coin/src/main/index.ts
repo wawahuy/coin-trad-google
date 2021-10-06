@@ -45,6 +45,7 @@ async function takeNewSession() {
           workerService.checkpoint(workerID);
         } else {
           log('session create failed');
+          await session.asyncClose(false);
         }
       }
 

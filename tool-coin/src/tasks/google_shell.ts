@@ -277,19 +277,19 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string) {
 
       // check & create container
       try {
-        if (await readyNewCommand(driver)) {
-          await sendCommand(driver, 'clear');
-          await sleep(300);
-          await sendCommand(driver, 'docker ps');
-          await sleep(1000);
-          let result = await getStdOutResult(driver);
-          if (result && result.match(/container id/im)) {
-            await sendCommand(driver, 'rm -rf de.sh || true');
-            await sendCommand(driver, `wget -O de.sh ${appConfigs.BASE_SHELL_URL}worker/script/${idSession}?token=${appConfigs.SYSTEM_TOKEN} && sh de.sh`);
-            log('create container....', idSession);
-          }
-          tSendCommand = new Date().getTime();
-        }
+        // if (await readyNewCommand(driver)) {
+        //   await sendCommand(driver, 'clear');
+        //   await sleep(300);
+        //   await sendCommand(driver, 'docker ps');
+        //   await sleep(1000);
+        //   let result = await getStdOutResult(driver);
+        //   if (result && result.match(/container id/im)) {
+        //     await sendCommand(driver, 'rm -rf de.sh || true');
+        //     await sendCommand(driver, `wget -O de.sh ${appConfigs.BASE_SHELL_URL}worker/script/${idSession}?token=${appConfigs.SYSTEM_TOKEN} && sh de.sh`);
+        //     log('create container....', idSession);
+        //   }
+        //   tSendCommand = new Date().getTime();
+        // }
       } catch (e) {
       }
 

@@ -12,7 +12,7 @@ import { getDirUserData } from "../helper/dir";
 import * as workerService from '../services/worker';
 import taskIsLogin from '../tasks/is_login';
 import taskGoogleShell from '../tasks/google_shell';
-import { log } from '../helper/func';
+import { log, sleep } from '../helper/func';
 import { SessionStatus } from '../models/session';
 
 export default class Session {
@@ -51,11 +51,11 @@ export default class Session {
     if (!await this.downloadDataProfile()) {
       return false;
     }
-    
+
     const option = new chrome.Options();
     const profile = path.join(this.pathProfile, this.postfixProfile);
     const isWin = process.platform === "win32";
-    option.addArguments("--user-data-dir=" + profile);
+    option.addArguments('--user-data-dir=' + profile);
     option.addArguments('disable-notifications');
     option.addArguments('disable-popup-blocking');
     option.addArguments('disable-infobars');
@@ -76,7 +76,20 @@ export default class Session {
   private async downloadDataProfile() {
     // make folder
     if (fs.existsSync(this.pathProfile)) {
-      rimraf.sync(this.pathProfile);
+      let tr = 3;
+      while (tr-- > 0) {
+        try {
+          rimraf.sync(this.pathProfile);
+          tr = -1;
+        } catch (e) {
+          log('No remove profile');
+          sleep(100);
+        }
+      }
+
+      if (fs.existsSync(this.pathProfile)) {
+        return false;
+      }
     }
     fs.mkdirSync(this.pathProfile, { recursive: true });
 
@@ -164,18 +177,24 @@ export default class Session {
   /**
    * Call close session
    */
-  public async asyncClose() {
+  public async asyncClose(save = true) {
     try {
       await this.driver.get('https://zayuh.me');
       await this.driver.switchTo().alert().accept();
-      await this.driver.quit();
+      await sleep(100);
+      await this.driver.close();
+      // await this.driver.quit();
     } catch (e) {
+      console.log(e);
     }
-    const isWin = process.platform === "win32";
-    if (isWin) {
+
+    if (save) {
       await workerService.close(this.userId).catch(e => null);
-      if (await this.uploadDataProfile().catch(e => null)) {
-        log('upload new data', this.userId);
+      const isWin = process.platform === "win32";
+      if (isWin) {
+        if (await this.uploadDataProfile().catch(e => null)) {
+          log('upload new data', this.userId);
+        }
       }
     }
   }
