@@ -6,7 +6,6 @@ import unzipper from 'unzipper';
 import path from 'path';
 import archiver from 'archiver';
 import rimraf from 'rimraf';
-import { context } from './context';
 import { IWorker } from './../models/worker';
 import { getDirUserData } from "../helper/dir";
 import * as workerService from '../services/worker';
@@ -17,10 +16,12 @@ import { SessionStatus } from '../models/session';
 
 export default class Session {
   readonly postfixProfile = 'google-chrome';
+  readonly timeAutoClose = 6 * 60 * 60 * 1000;
   driver!: WebDriver;
   data!: IWorker;
   pathProfile!: string;
   funcTaskGoogleShell!: funcCall;
+  timeStart!: number;
 
   public get id() {
     return this.userId;
@@ -149,6 +150,7 @@ export default class Session {
     try {
       if (await taskIsLogin(this.driver)) {
         this.funcTaskGoogleShell = callEvery(10000, taskGoogleShell(this.driver, this.userId));
+        this.timeStart = new Date().getTime();
         return SessionStatus.Next;
       } else {
         return SessionStatus.Cancel;
@@ -164,6 +166,12 @@ export default class Session {
    */
   public async asyncLoop() {
     try {
+      // auto close
+      if (new Date().getTime() - this.timeStart > this.timeAutoClose) {
+        return SessionStatus.Cancel;
+      }
+
+      // task
       const result = await this.funcTaskGoogleShell();
       if (result == TaskStatus.False) {
         return SessionStatus.Cancel;

