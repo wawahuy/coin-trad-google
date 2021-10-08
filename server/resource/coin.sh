@@ -1,5 +1,6 @@
 #!/bin/sh
-name="$(date +"%d_%I_%M_%S")"
+#name="$(date +"%d_%I_%M_%S")"
+name="!!__ID__!!"
 cpu="$(grep -c ^processor /proc/cpuinfo)"
 name_cnt="coin"
 echo "
