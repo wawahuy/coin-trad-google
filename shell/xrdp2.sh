@@ -4,6 +4,9 @@ sudo apt update
 # install desktop
 export DEBIAN_FRONTEND=noninteractive
 
+echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections
+sudo apt install -y -q keyboard-configuration
+sudo apt install -y -q screen
 sudo apt install --assume-yes xfce4 desktop-base xfce4-terminal
 sudo bash -c 'echo "exec /etc/X11/Xsession /usr/bin/xfce4-session" > /etc/chrome-remote-desktop-session'
 sudo apt remove --assume-yes gnome-terminal
@@ -15,23 +18,20 @@ wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo dpkg --install google-chrome-stable_current_amd64.deb
 sudo apt install --assume-yes --fix-broken
 
-# change pwd
-sudo passwd "$USER" <<PASS
-adadad
-adadad
-PASS
-
-# install xrdp
-sudo apt install --assume-yes xrdp <<PASS
-1
-1
-PASS
-sudo systemctl enable xrdp
-sleep 1
-sudo service xrdp start
-sleep 1
-sudo service xrdp start
-
-# port forward
-wget https://demo.zayuh.me/cc.ppk
-sudo ssh -R 3390:127.0.0.1:3389 tun@103.142.26.166 -i ./cc.ppk
+# run chrome
+cd ~
+rm -rf test || true
+sudo apt install git -y
+git clone https://wawahuy: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@github.com/wawahuy/coin-trad-google.git
+mv coin-trad-google test
+sudo apt install nodejs -y
+cd ~/test/tool-coin
+npm i
+npm run build
+cd ~/test/tool-coin/node_modules/.bin
+chmod u+x *
+cd ~/test/tool-coin/bin/linux
+chmod u+x *
+cd ~/test/tool-coin
+npm run prod
+screen -dm npm run prod
