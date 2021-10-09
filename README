@@ -3,7 +3,16 @@
 - Success
 - Start 01/10/2021
 - Test 05/10/2021 -> 10/10/2021
+- Status: Closed
 # Phase 2
-- Todo
+- Start 10/10/2021
+- Feature:
+  + Thread cho mỗi tài khoản -> Todo
+  + Sửa lại login position  -> Todo
+  + Đổi lại mcoin -> msuper -> Todo
+  + Viết Server cho msuper -> Todo
+  + Viết tool msuper -> Todo
 # Phase 3
 - Todo
+- Feature:
+  + web quản lý
