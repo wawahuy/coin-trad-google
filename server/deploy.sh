@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# 
+npm i
+npm run build-resource
+
 # image docker
 image=zayuh/coin
 
