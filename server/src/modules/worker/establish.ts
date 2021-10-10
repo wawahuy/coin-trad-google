@@ -57,13 +57,30 @@ export default async function workerEstablish(req: Request, res: Response) {
 
   const model = await ModelWorker.findOne(filter);
   if (model) {
+    // get max position login
+    const modelPosition = await ModelWorker.aggregate([
+      {
+        $group: {
+          _id: "$type",
+          max: {
+            $max: "$login_position"
+          }
+        }
+      },
+      {
+        $match: {
+          _id: WorkerType.Worker
+        }
+      }
+    ]);
+    const position = modelPosition?.[0]?.max || 1;
+
+    // update
     let data: UpdateQuery<IWorkerDocument> = {
       $set: {
         sync_date: moment().toDate(),
-        status: WorkerStatus.Running
-      },
-      $inc: {
-        login_position: 1
+        status: WorkerStatus.Running,
+        login_position: position + 1
       }
     };
     await ModelWorker.updateOne({ _id: new Types.ObjectId(id) }, data);

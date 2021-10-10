@@ -9,6 +9,7 @@ import { WorkerStatus, WorkerType } from '../worker';
   email?: string;
   password?: string;
   profile_data?: string;
+  thread?: number;
   type?: WorkerType;
   status?: WorkerStatus;
   worker_max?: number;
@@ -36,6 +37,7 @@ const WorkerSchema = new Schema<IWorkerDocument, IWorkerModal>(
     email: { type: Schema.Types.String, index: true },
     password: { type: Schema.Types.String },
     profile_data: { type: Schema.Types.String },
+    thread: { type: Schema.Types.Number, default: 1 },
     type: { type: Schema.Types.Number, index: true },
     status: { type: Schema.Types.Number, default: WorkerStatus.Idle },
     worker_max: { type: Schema.Types.Number, default: 10 },

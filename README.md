@@ -7,9 +7,9 @@
 # Phase 2
 - Start 10/10/2021
 - Feature:
-  + Thread cho mỗi tài khoản -> Todo
-  + Sửa lại login position  -> Todo
-  + Đổi lại mcoin -> msuper -> Todo
+  + Xoa resource profile tool -> Done
+  + Thread cho mỗi tài khoản -> Done
+  + Sửa lại login position  -> Done
   + Viết Server cho msuper -> Todo
   + Viết tool msuper -> Todo
 # Phase 3
