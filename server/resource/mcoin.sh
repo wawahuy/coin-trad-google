@@ -36,4 +36,7 @@ chmod u+x ./*
 cd ~/tool-coin/bin/linux || exit
 chmod u+x ./*
 cd ~/tool-coin || exit
+
+sleep 2
 screen -dm npm run prod
+sleep 2
