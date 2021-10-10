@@ -5,10 +5,8 @@ import ModelWorker, { IWorkerDocument } from '../../models/schema/worker';
 import moment from 'moment';
 import { appConfigs } from '../../config/app';
 
-export default async function coinEstablish(req: Request, res: Response) {
-  const id = req.body.id;
+export default async function workerGet(req: Request, res: Response) {
   const filter: FilterQuery<IWorkerDocument> = {
-    _id: new Types.ObjectId(id),
     type: WorkerType.CoinManager,
     $and: [
       {
@@ -55,38 +53,24 @@ export default async function coinEstablish(req: Request, res: Response) {
     ]
   };
 
-  const model = await ModelWorker.findOne(filter);
-  if (model) {
-    // get max position login
-    const modelPosition = await ModelWorker.aggregate([
-      {
-        $group: {
-          _id: "$type",
-          max: {
-            $max: "$login_position"
-          }
-        }
-      },
-      {
-        $match: {
-          _id: WorkerType.CoinManager
-        }
+  const model = await ModelWorker.aggregate([
+    {
+      $match: filter
+    },
+    {
+      $sort: {
+        login_position: 1
       }
-    ]);
-    const position = modelPosition?.[0]?.max || 1;
+    },
+    {
+      $limit: 1
+    }
+  ]);
 
-    // update
-    let data: UpdateQuery<IWorkerDocument> = {
-      $set: {
-        sync_date: moment().toDate(),
-        status: WorkerStatus.Running,
-        login_position: position + 1
-      }
-    };
-    await ModelWorker.updateOne({ _id: new Types.ObjectId(id) }, data);
+  if (model && model.length) {
     res.json({
       status: true,
-      data: model
+      data: model[0]._id
     });
   } else {
     res.json({

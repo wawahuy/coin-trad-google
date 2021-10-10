@@ -13,7 +13,7 @@ export default async function coinSync(req: Request, res: Response) {
   const cpu = req.body.cpu;
   const ram = req.body.ram;
   const ram_max = req.body.ram_max;
-  const model = await ModelWorker.findOne({ _id: new Types.ObjectId(id) });
+  const model = await ModelWorker.findOne({ _id: new Types.ObjectId(id), type: WorkerType.CoinManager });
   if (model) {
     let dataNew: IWorker = {};
     if (quota && quota_max && quota_reset) {
