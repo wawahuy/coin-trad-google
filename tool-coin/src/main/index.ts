@@ -7,6 +7,8 @@ import Session from './session';
 import { log } from '../helper/func';
 import { callEvery } from '../helper/task';
 import { SessionStatus } from '../models/session';
+import { getDirUserData } from "../helper/dir";
+import rimraf from 'rimraf';
 
 async function takeNewSession() {
   // sync detail
@@ -58,6 +60,16 @@ async function takeNewSession() {
 }
 
 export default async function main() {
+  const ud = getDirUserData('');
+  if (fs.existsSync(ud)) {
+    try {
+      log('Remove', ud);
+      rimraf.sync(ud);
+    } catch (e) {
+      log('No remove profile');
+    }
+  }
+
   const p = path.join(__dirname, '../../.configid');
   if (!fs.existsSync(p)) {
     console.log('ID not found');
@@ -73,7 +85,6 @@ export default async function main() {
 
   const funcTakeNewSession = callEvery(10000, takeNewSession);
   const sleep = 1000;
-  const threads = 1;
   const running = async function () {
     const t = new Date().getTime();
 
@@ -88,6 +99,7 @@ export default async function main() {
     let sessionsRunning: Session[] = [];
     const sessionsRemove: Session[] = [];
     const sessions = context.sessions;
+    const threads = context?.mainDetail?.thread || 1;
     for (let i = 0; i < sessions.length; i++) {
       countRunning++;
       sessionsRunning.push(sessions[i]);

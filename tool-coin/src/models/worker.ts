@@ -23,6 +23,7 @@ export interface IWorker {
   email?: string;
   password?: string;
   profile_data?: string;
+  thread?: number;
   type?: WorkerType;
   status?: WorkerStatus;
   worker_max?: number;
