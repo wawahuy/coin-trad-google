@@ -5,7 +5,7 @@ import ModelWorker, { IWorkerDocument } from '../../models/schema/worker';
 import moment from 'moment';
 import { appConfigs } from '../../config/app';
 
-export default async function workerGet(req: Request, res: Response) {
+export default async function coinGet(req: Request, res: Response) {
   const filter: FilterQuery<IWorkerDocument> = {
     type: WorkerType.CoinManager,
     $and: [

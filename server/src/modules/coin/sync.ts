@@ -6,7 +6,7 @@ import moment from 'moment';
 import { appConfigs } from '../../config/app';
 
 export default async function coinSync(req: Request, res: Response) {
-  const id = req.body.id;
+  const id = req.body.id?.trim();
   const quota = req.body.quota;
   const quota_max = req.body.quota_max;
   const quota_reset = req.body.quota_reset;

@@ -7,7 +7,7 @@ import { appConfigs } from '../../config/app';
 import { getResourcePath } from '../../helpers/dir';
 import fs from 'fs';
 
-export default async function workerProfileDownload(req: Request, res: Response) {
+export default async function coinProfileDownload(req: Request, res: Response) {
   const id = req.params.id;
   const model = await ModelWorker.findOne({ _id: new Types.ObjectId(id), type: WorkerType.CoinManager });
   if (model) {

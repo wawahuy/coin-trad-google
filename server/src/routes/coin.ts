@@ -1,9 +1,23 @@
 import express, { Router } from "express";
 import path from "path";
+import coinCheckpoint from "../modules/coin/checkpoint";
+import coinClose from "../modules/coin/close";
+import coinDisabled from "../modules/coin/disabled";
 import coinEstablish from "../modules/coin/establish";
+import coinGet from "../modules/coin/get";
+import coinProfileDownload from "../modules/coin/profile_download";
+import coinProfileUpload from "../modules/coin/profile_upload";
+import coinScript from "../modules/coin/script";
 import coinSync from "../modules/coin/sync";
 
 const routerCoins = Router();
 routerCoins.post('/establish', coinEstablish);
 routerCoins.post('/sync', coinSync);
+routerCoins.post('/close', coinClose);
+routerCoins.post('/checkpoint', coinCheckpoint);
+routerCoins.post('/disabled', coinDisabled);
+routerCoins.post('/profile/:id', coinProfileUpload);
+routerCoins.get('/profile/:id', coinProfileDownload);
+routerCoins.get('/script/:id', coinScript);
+routerCoins.get('/get', coinGet);
 export default routerCoins;

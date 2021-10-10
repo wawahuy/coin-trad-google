@@ -76,7 +76,7 @@ export default async function main() {
     return;
   }
 
-  context.id = fs.readFileSync(p).toString('utf-8');
+  context.id = fs.readFileSync(p).toString('utf-8')?.trim();
   log('[Coin] open ', context.id);
   if (!context.id) {
     log('[Coin] no id');

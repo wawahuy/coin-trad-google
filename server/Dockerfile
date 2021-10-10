@@ -12,6 +12,8 @@ COPY . .
 
 RUN npm run build
 
+RUN npm run build-resource
+
 EXPOSE 12000
 
 CMD "npm" "run" "prod"
