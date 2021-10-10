@@ -10,6 +10,8 @@ RUN npm install
 
 COPY . .
 
+COPY ../tool-coin ../tool-coin
+
 RUN npm run build
 
 RUN npm run build-resource
