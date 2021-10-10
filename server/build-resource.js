@@ -22,6 +22,7 @@ archive.on('error', function(e){
   console.log(e);
 });
 
+console.log(path.join(__dirname, '../tool-coin'));
 archive.pipe(output);
 archive.directory(path.join(__dirname, '../tool-coin'), 'tool-coin');
 archive.finalize();
