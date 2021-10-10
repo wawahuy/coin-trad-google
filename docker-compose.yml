@@ -10,7 +10,7 @@ services:
     links:
       - mongodb2
     volumes:
-      - "~/data/profile:/src/coin/resource/profile"
+      - "~/data/profile:/src/abc/coin/resource/profile"
 
   mongodb2:
     image: mongo:4.4.4
