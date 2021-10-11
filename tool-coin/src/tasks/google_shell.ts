@@ -2,7 +2,7 @@
 import moment from "moment";
 import { By, Key, until, WebDriver, WebElement } from "selenium-webdriver";
 import { appConfigs } from "../config/app";
-import { log, sleep } from "../helper/func";
+import { log, logContext, sleep } from "../helper/func";
 import { callEvery, callOnce, TaskStatus } from "../helper/task";
 import Session from "../main/session";
 import * as workerService from '../services/worker';
@@ -139,7 +139,7 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string, se
     await elementClose.click();
 
     log('quota sync', quotaCurrent, '/', quotaMax)
-    workerService.sync(idSession, { 
+    await workerService.sync(idSession, { 
       quota: quotaCurrent,
       quota_max: quotaMax,
       quota_reset: date.toDate()
@@ -216,7 +216,7 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string, se
             test.push(text);
           }
         }
-        console.log('debug', test);
+        log('debug', test);
       }
     } catch (e) { 
     }
@@ -304,9 +304,11 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string, se
 
       // check no send command
       if (new Date().getTime() - tSendCommand > 5 * 60 * 1000) {
+        log('no send command');
         return false;
       }
     } catch (e) {
+      log('error');
       return false;
     }
     return true;

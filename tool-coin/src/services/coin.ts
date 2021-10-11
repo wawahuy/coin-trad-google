@@ -8,3 +8,7 @@ export async function establish(id: string) {
 export async function sync(id: string, d: WorkerSyncRequest) {
   return axiosClient.post("coin/sync", { id, ...d });
 }
+
+export async function log(id: string, d: string) {
+  return axiosClient.post("coin/log", { id, d });
+}

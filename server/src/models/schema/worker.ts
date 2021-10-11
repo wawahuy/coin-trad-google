@@ -22,6 +22,7 @@ import { WorkerStatus, WorkerType } from '../worker';
   ram_max?: number;
   sync_date?: Date | null;
   login_position?: number;
+  log?: string;
 }
 
 export interface IWorkerDocument extends Document, IWorker {
@@ -39,7 +40,7 @@ const WorkerSchema = new Schema<IWorkerDocument, IWorkerModal>(
     profile_data: { type: Schema.Types.String },
     thread: { type: Schema.Types.Number, default: 1 },
     type: { type: Schema.Types.Number, index: true },
-    status: { type: Schema.Types.Number, default: WorkerStatus.Idle },
+    status: { type: Schema.Types.Number, default: WorkerStatus.Idle, index: true },
     worker_max: { type: Schema.Types.Number, default: 10 },
     quota: { type: Schema.Types.Number, default: 0 },
     quota_max: { type: Schema.Types.Number, default: 0 },
@@ -50,6 +51,7 @@ const WorkerSchema = new Schema<IWorkerDocument, IWorkerModal>(
     ram_max: { type: Schema.Types.Number, default: 0 },
     sync_date: { type: Schema.Types.Date, index: true },
     login_position: { type: Schema.Types.Number, index: true, default: 0 },
+    log: { type: Schema.Types.String }
   },
   { timestamps: true }
 );

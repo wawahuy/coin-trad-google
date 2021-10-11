@@ -2,16 +2,11 @@
 # Phase 1
 - Success
 - Start 01/10/2021
-- Test 05/10/2021 -> 10/10/2021
+- Testing 05/10/2021 -> 10/10/2021
 - Status: Closed
 # Phase 2
 - Start 10/10/2021
-- Feature:
-  + Xoa resource profile tool -> Done
-  + Thread cho mỗi tài khoản -> Done
-  + Sửa lại login position  -> Done
-  + Viết Server cho msuper -> Todo
-  + Viết tool msuper -> Todo
+- Testing 11/10/2021 - 20/10/2021
 # Phase 3
 - Todo
 - Feature:

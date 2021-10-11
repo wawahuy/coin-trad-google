@@ -4,8 +4,8 @@ import fs from 'fs';
 import * as coinService from '../services/coin';
 import * as workerService from '../services/worker';
 import Session from './session';
-import { log } from '../helper/func';
-import { callEvery } from '../helper/task';
+import { log, logContext } from '../helper/func';
+import { callEvery, TaskStatus } from '../helper/task';
 import { SessionStatus } from '../models/session';
 import { getDirUserData } from "../helper/dir";
 import rimraf from 'rimraf';
@@ -83,6 +83,17 @@ export default async function main() {
     return;
   }
 
+  const funcSyncLog = callEvery(60000, async function () {
+    try {
+      if (!context.id) {
+        return false;
+      }
+      await coinService.log(context.id.toString(), JSON.stringify(logContext));
+    } catch (e) {
+    }
+    return true;
+  })
+
   const funcTakeNewSession = callEvery(10000, takeNewSession);
   const sleep = 1000;
   const running = async function () {
@@ -93,6 +104,7 @@ export default async function main() {
      * 
      */
     await funcTakeNewSession();
+    await funcSyncLog();
 
     // run session
     let countRunning = 0;

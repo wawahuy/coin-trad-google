@@ -35,6 +35,7 @@ export default async function coinSync(req: Request, res: Response) {
       },
     };
     await ModelWorker.updateOne({ _id: new Types.ObjectId(id), type: WorkerType.CoinManager }, data);
+    model.log = undefined;
     res.json({
       status: true,
       data: model

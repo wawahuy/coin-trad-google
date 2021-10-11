@@ -172,9 +172,9 @@ export default class Session {
   public async asyncLoop() {
     try {
       // auto close
-      if (new Date().getTime() - this.timeStart > this.timeAutoClose) {
-        return SessionStatus.Cancel;
-      }
+      // if (new Date().getTime() - this.timeStart > this.timeAutoClose) {
+      //   return SessionStatus.Cancel;
+      // }
 
       // task
       const result = await this.funcTaskGoogleShell();
