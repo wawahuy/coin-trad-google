@@ -4,6 +4,7 @@ import { By, Key, until, WebDriver, WebElement } from "selenium-webdriver";
 import { appConfigs } from "../config/app";
 import { log, sleep } from "../helper/func";
 import { callEvery, callOnce, TaskStatus } from "../helper/task";
+import Session from "../main/session";
 import * as workerService from '../services/worker';
 
 const urlLogin = "https://shell.cloud.google.com/";
@@ -81,7 +82,7 @@ async function readyNewCommand(driver: WebDriver) {
   return false;
 }
 
-export default function taskGoogleShell(driver: WebDriver, idSession: string) {
+export default function taskGoogleShell(driver: WebDriver, idSession: string, session: Session) {
   let tSendCommand = new Date().getTime();
 
   /**
@@ -235,6 +236,7 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string) {
         const text = await elementDisable.getText();
         if (text?.match(/disabled/gim)) {
           log('disabled call');
+          session.disable();
           await workerService.disabled(idSession).then(e => log('disabled success')).catch(e => null);
           return true;
         }

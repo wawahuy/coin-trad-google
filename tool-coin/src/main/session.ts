@@ -22,6 +22,7 @@ export default class Session {
   pathProfile!: string;
   funcTaskGoogleShell!: funcCall;
   timeStart!: number;
+  disabled: boolean = false;
 
   public get id() {
     return this.userId;
@@ -38,6 +39,10 @@ export default class Session {
       return session;
     }
     return false;
+  }
+
+  disable() {
+    this.disabled = true;
   }
 
   private async init() {
@@ -149,7 +154,7 @@ export default class Session {
   public async asyncInit() {
     try {
       if (await taskIsLogin(this.driver)) {
-        this.funcTaskGoogleShell = callEvery(10000, taskGoogleShell(this.driver, this.userId));
+        this.funcTaskGoogleShell = callEvery(10000, taskGoogleShell(this.driver, this.userId, this));
         this.timeStart = new Date().getTime();
         return SessionStatus.Next;
       } else {
@@ -196,7 +201,7 @@ export default class Session {
       console.log(e);
     }
 
-    if (save) {
+    if (save && !this.disable) {
       await workerService.close(this.userId).catch(e => null);
       const isWin = process.platform === "win32";
       if (isWin) {
