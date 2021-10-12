@@ -41,7 +41,7 @@ const WorkerSchema = new Schema<IWorkerDocument, IWorkerModal>(
     thread: { type: Schema.Types.Number, default: 1 },
     type: { type: Schema.Types.Number, index: true },
     status: { type: Schema.Types.Number, default: WorkerStatus.Idle, index: true },
-    worker_max: { type: Schema.Types.Number, default: 10 },
+    worker_max: { type: Schema.Types.Number, default: 5 },
     quota: { type: Schema.Types.Number, default: 0 },
     quota_max: { type: Schema.Types.Number, default: 0 },
     quota_reset: { type: Schema.Types.Date, index: true },
