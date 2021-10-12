@@ -59,11 +59,8 @@ export default async function workerGet(req: Request, res: Response) {
     },
     {
       $sort: {
-        status: -1
-      }
-    },
-    {
-      $sort: {
+        status: -1,
+        quota: -1,
         login_position: 1
       }
     },
