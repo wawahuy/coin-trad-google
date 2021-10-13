@@ -1,7 +1,8 @@
 #!/bin/sh
 #name="$(date +"%d_%I_%M_%S")"
 name="!!__ID__!!"
-cpu="$(grep -c ^processor /proc/cpuinfo)"
+#cpu="$(grep -c ^processor /proc/cpuinfo)"
+cpu=$(($(grep -c ^processor /proc/cpuinfo)/2))
 name_cnt="coin"
 echo "
 FROM ubuntu

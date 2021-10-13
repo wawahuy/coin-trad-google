@@ -8,6 +8,5 @@
 - Start 10/10/2021
 - Testing 11/10/2021 - 20/10/2021
 # Phase 3
-- Todo
-- Feature:
-  + web quản lý
+- Start 12/10/2021
+-
