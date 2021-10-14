@@ -15,8 +15,8 @@ export async function sync(id: string, d: WorkerSyncRequest) {
   return axiosClient.post("worker/sync", { id, ...d });
 }
 
-export async function close(id: string, parent: string) {
-  return axiosClient.post("worker/close", { id, parent });
+export async function close(id: string, parent: string, login_position: number) {
+  return axiosClient.post("worker/close", { id, parent, login_position });
 }
 
 export async function checkpoint(id: string) {

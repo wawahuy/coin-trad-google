@@ -59,6 +59,8 @@ export default class Session {
       return false;
     }
 
+    this.data = establishData.data;
+
     const option = new chrome.Options();
     const profile = path.join(this.pathProfile, this.postfixProfile);
     const isWin = process.platform === "win32";
@@ -193,8 +195,8 @@ export default class Session {
    */
   public async asyncClose(save = true) {
     try {
-      await this.driver.get('https://zayuh.me');
-      await this.driver.switchTo().alert().accept();
+      //await this.driver.get('https://zayuh.me');
+      //await this.driver.switchTo().alert().accept();
       await sleep(100);
       await this.driver.close();
       // await this.driver.quit();
@@ -203,7 +205,7 @@ export default class Session {
     }
 
     if (save && !this.disabled) {
-      await coinService.close(this.userId , context.id || "").catch(e => null);
+      await coinService.close(this.userId , context.id || "", this.data?.login_position || 0).catch(e => null);
       const isWin = process.platform === "win32";
       if (isWin) {
         if (await this.uploadDataProfile().catch(e => null)) {

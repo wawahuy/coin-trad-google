@@ -101,6 +101,7 @@ export default async function workerEstablish(req: Request, res: Response) {
       }
     };
     await ModelWorker.updateOne({ _id: new Types.ObjectId(id) }, data);
+    model.login_position = position + 1;
     res.json({
       status: true,
       data: model

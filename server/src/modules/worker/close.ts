@@ -7,10 +7,12 @@ import { HistoryConnectType } from '../../models/history_connect';
 
 export default async function workerClose(req: Request, res: Response) {
   const id = req.body.id;
+  const login_position = req.body.login_position;
   const model = await ModelWorker.findOne({ 
     _id: new Types.ObjectId(id),
     parent: new Types.ObjectId(req.body.parent),
-    type: WorkerType.Worker 
+    type: WorkerType.Worker,
+    login_position
   });
   if (model) {
     // add log
