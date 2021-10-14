@@ -7,25 +7,21 @@ import { HistoryConnectType } from '../../models/history_connect';
 
 export default async function workerClose(req: Request, res: Response) {
   const id = req.body.id;
-  const model = await ModelWorker.findOne({ _id: new Types.ObjectId(id), type: WorkerType.Worker });
-  
+  const model = await ModelWorker.findOne({ 
+    _id: new Types.ObjectId(id),
+    parent: new Types.ObjectId(req.body.parent),
+    type: WorkerType.Worker 
+  });
   if (model) {
-    if (req.body.parent) {
-      const parent = await ModelWorker.findOne({
-        _id: new Types.ObjectId(req.body.parent)
-      });
-      if (parent) {
-        // add log
-        await ModelHistoryConnect.insertMany([
-          {
-            from: parent._id,
-            child: model._id,
-            type: HistoryConnectType.Close,
-            type_worker: WorkerType.Worker
-          }
-        ]);
+    // add log
+    await ModelHistoryConnect.insertMany([
+      {
+        from: model.parent,
+        child: model._id,
+        type: HistoryConnectType.Close,
+        type_worker: WorkerType.Worker
       }
-    }
+    ]);
 
     let data: UpdateQuery<IWorkerDocument> = {
       $set: {

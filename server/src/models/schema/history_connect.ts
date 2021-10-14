@@ -7,8 +7,8 @@ import { WorkerStatus, WorkerType } from '../worker';
  * Declare Schema
  */
 export interface IHistoryConnect {
-  from: ObjectId;
-  child: ObjectId;
+  from: any;
+  child: any;
   type: HistoryConnectType;
   type_worker: WorkerType;
   login_position: number;

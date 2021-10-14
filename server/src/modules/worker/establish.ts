@@ -57,8 +57,11 @@ export default async function workerEstablish(req: Request, res: Response) {
     ]
   };
 
+  const parent = await ModelWorker.findOne({
+    _id: new Types.ObjectId(req.body.parent)
+  }); 
   const model = await ModelWorker.findOne(filter);
-  if (model) {
+  if (model && parent) {
     // get max position login
     const modelPosition = await ModelWorker.aggregate([
       {
@@ -77,27 +80,21 @@ export default async function workerEstablish(req: Request, res: Response) {
     ]);
     const position = modelPosition?.[0]?.max || 1;
 
-    if (req.body.parent) {
-      const parent = await ModelWorker.findOne({
-        _id: new Types.ObjectId(req.body.parent)
-      }); 
-      if (parent) {
-        // add log
-        await ModelHistoryConnect.insertMany([
-          {
-            from: parent._id,
-            child: model._id,
-            type: HistoryConnectType.Establish,
-            type_worker: WorkerType.Worker,
-            login_position: position + 1
-          }
-        ]);
+    // add log
+    await ModelHistoryConnect.insertMany([
+      {
+        from: parent._id,
+        child: model._id,
+        type: HistoryConnectType.Establish,
+        type_worker: WorkerType.Worker,
+        login_position: position + 1
       }
-    }
+    ]);
 
     // update
     let data: UpdateQuery<IWorkerDocument> = {
       $set: {
+        parent: new Types.ObjectId(req.body.parent),
         sync_date: moment().toDate(),
         status: WorkerStatus.Running,
         login_position: position + 1

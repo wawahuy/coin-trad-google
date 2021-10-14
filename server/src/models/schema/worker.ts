@@ -1,5 +1,5 @@
 import moment from 'moment';
-import Mongoose, { Document, Model, Schema } from 'mongoose';
+import Mongoose, { Document, Model, ObjectId, Schema } from 'mongoose';
 import { WorkerStatus, WorkerType } from '../worker';
 
 /***
@@ -9,6 +9,7 @@ import { WorkerStatus, WorkerType } from '../worker';
   email?: string;
   password?: string;
   profile_data?: string;
+  parent?: any;
   thread?: number;
   type?: WorkerType;
   status?: WorkerStatus;
@@ -51,7 +52,8 @@ const WorkerSchema = new Schema<IWorkerDocument, IWorkerModal>(
     ram_max: { type: Schema.Types.Number, default: 0 },
     sync_date: { type: Schema.Types.Date, index: true },
     login_position: { type: Schema.Types.Number, index: true, default: 0 },
-    log: { type: Schema.Types.String }
+    log: { type: Schema.Types.String },
+    parent: { type: Schema.Types.ObjectId, index: true },
   },
   { timestamps: true }
 );
