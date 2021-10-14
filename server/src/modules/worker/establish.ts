@@ -4,6 +4,8 @@ import { Request, Response } from 'express';
 import ModelWorker, { IWorkerDocument } from '../../models/schema/worker';
 import moment from 'moment';
 import { appConfigs } from '../../config/app';
+import ModelHistoryConnect from '../../models/schema/history_connect';
+import { HistoryConnectType } from '../../models/history_connect';
 
 export default async function workerEstablish(req: Request, res: Response) {
   const id = req.body.id;
@@ -74,6 +76,24 @@ export default async function workerEstablish(req: Request, res: Response) {
       }
     ]);
     const position = modelPosition?.[0]?.max || 1;
+
+    if (req.body.parent) {
+      const parent = await ModelWorker.findOne({
+        _id: new Types.ObjectId(req.body.parent)
+      }); 
+      if (parent) {
+        // add log
+        await ModelHistoryConnect.insertMany([
+          {
+            from: parent._id,
+            child: model._id,
+            type: HistoryConnectType.Establish,
+            type_worker: WorkerType.Worker,
+            login_position: position + 1
+          }
+        ]);
+      }
+    }
 
     // update
     let data: UpdateQuery<IWorkerDocument> = {

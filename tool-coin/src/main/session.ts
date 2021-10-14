@@ -13,6 +13,7 @@ import taskIsLogin from '../tasks/is_login';
 import taskGoogleShell from '../tasks/google_shell';
 import { log, sleep } from '../helper/func';
 import { SessionStatus } from '../models/session';
+import { context } from './context';
 
 export default class Session {
   readonly postfixProfile = 'google-chrome';
@@ -48,7 +49,7 @@ export default class Session {
   private async init() {
     this.pathProfile = getDirUserData(this.userId);
 
-    const establish = await workerService.establish(this.userId).catch(e => null);
+    const establish = await workerService.establish(this.userId, context.id || "").catch(e => null);
     const establishData = <any>establish?.data;
     if (!establishData?.status) {
       return false;
@@ -201,8 +202,8 @@ export default class Session {
       console.log(e);
     }
 
-    if (save && !this.disable) {
-      await workerService.close(this.userId).catch(e => null);
+    if (save && !this.disabled) {
+      await workerService.close(this.userId, context.id || "").catch(e => null);
       const isWin = process.platform === "win32";
       if (isWin) {
         if (await this.uploadDataProfile().catch(e => null)) {

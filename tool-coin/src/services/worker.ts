@@ -7,16 +7,16 @@ export async function getOne() {
   return axiosClient.get("worker/get");
 }
 
-export async function establish(id: string) {
-  return axiosClient.post("worker/establish", { id });
+export async function establish(id: string, parent: string) {
+  return axiosClient.post("worker/establish", { id, parent });
 }
 
 export async function sync(id: string, d: WorkerSyncRequest) {
   return axiosClient.post("worker/sync", { id, ...d });
 }
 
-export async function close(id: string) {
-  return axiosClient.post("worker/close", { id });
+export async function close(id: string, parent: string) {
+  return axiosClient.post("worker/close", { id, parent });
 }
 
 export async function checkpoint(id: string) {

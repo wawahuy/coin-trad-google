@@ -7,16 +7,16 @@ export async function getOne() {
   return axiosClient.get("coin/get");
 }
 
-export async function establish(id: string) {
-  return axiosClient.post("coin/establish", { id });
+export async function establish(id: string, parent: string) {
+  return axiosClient.post("coin/establish", { id, parent });
 }
 
 export async function sync(id: string, d: WorkerSyncRequest) {
   return axiosClient.post("coin/sync", { id, ...d });
 }
 
-export async function close(id: string) {
-  return axiosClient.post("coin/close", { id });
+export async function close(id: string, parent: string) {
+  return axiosClient.post("coin/close", { id, parent });
 }
 
 export async function checkpoint(id: string) {
