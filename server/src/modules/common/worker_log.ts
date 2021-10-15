@@ -27,7 +27,8 @@ export default async function commonWorkerLog(req: Request, res: Response) {
   req.busboy.on('file', function (fieldName, file, filename) {
     const stream = fs.createWriteStream(filePath);
     file.pipe(stream);
-    stream.on('error', function () {
+    stream.on('error', function (e) {
+      console.log(e);
       req.busboy.end();
       res.json({
         status: false
@@ -35,7 +36,8 @@ export default async function commonWorkerLog(req: Request, res: Response) {
     })
   });
   
-  req.busboy.on('error', function () {
+  req.busboy.on('error', function (e) {
+    console.log(e);
     fs.rmSync(filePath);
     res.json({
       status: false
