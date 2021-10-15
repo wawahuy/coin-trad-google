@@ -3,9 +3,14 @@ import moment from "moment";
 import { By, Key, until, WebDriver, WebElement } from "selenium-webdriver";
 import { appConfigs } from "../config/app";
 import { log, logContext, sleep } from "../helper/func";
-import { callEvery, callOnce, TaskStatus } from "../helper/task";
+import { callEvery, callOnce, callOnceTime, TaskStatus } from "../helper/task";
 import Session from "../main/session";
 import * as workerService from '../services/worker';
+import * as commonService from '../services/common';
+import { getDirUserData } from "../helper/dir";
+import fs from 'fs';
+import { WorkerType } from "../models/worker";
+import { WorkerLogType } from "../models/worker_log";
 
 const urlLogin = "https://shell.cloud.google.com/";
 const locateShellTextarea = By.className('xterm-helper-textarea');
@@ -84,6 +89,7 @@ async function readyNewCommand(driver: WebDriver) {
 
 export default function taskGoogleShell(driver: WebDriver, idSession: string, session: Session) {
   let tSendCommand = new Date().getTime();
+  let hasSync = false;
 
   /**
    * QUOTA
@@ -145,6 +151,8 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string, se
       quota_reset: date.toDate()
     });
 
+    hasSync = true;
+
     return true;
   });
 
@@ -175,6 +183,8 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string, se
             ram_max: mem_total,
             ram: mem_free
           });
+
+          hasSync = true;
         }
       }
 
@@ -247,6 +257,24 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string, se
   });
 
   /**
+   * Log sync
+   */
+  const logSync = callOnceTime(2 * 60 * 1000, async function () {
+    try {
+      if (hasSync) {
+        return true;
+      }
+      log('screen shoot not sync');
+      const image = await driver.takeScreenshot();
+      const file = getDirUserData(idSession + '.png');
+      fs.writeFileSync(file, image, 'base64');
+      commonService.workerLog(fs.createReadStream(file), idSession, WorkerType.Worker, WorkerLogType.NoSync);
+    } catch (e) {
+    }
+    return true;
+  });
+
+  /**
    * Open shell
    * 
    */
@@ -260,6 +288,7 @@ export default function taskGoogleShell(driver: WebDriver, idSession: string, se
   return async function (...args: any[]) {
     try {
       await openShell();
+      await logSync();
 
       // sync detail
       try {

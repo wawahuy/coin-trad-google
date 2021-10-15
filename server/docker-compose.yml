@@ -11,6 +11,7 @@ services:
       - mongodb2
     volumes:
       - "~/data/profile:/src/coin/resource/profile"
+      - "~/data/image:/src/coin/resource/image"
 
   mongodb2:
     image: mongo:4.4.4

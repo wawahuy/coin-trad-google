@@ -40,3 +40,24 @@ export function callOnce(callback: (...args: any[]) => Promise<boolean>) {
   }
 }
 
+export function callOnceTime(time: number, callback: (...args: any[]) => Promise<boolean>) {
+  let call = true;
+  let t = new Date().getTime();
+  return async function (...args: any[]) {
+    if (call) {
+      let tC = new Date().getTime();
+      if (tC - t < time) {
+        return TaskStatus.Idle;
+      }
+      call = false;
+      if (await callback(...args)) {
+        return TaskStatus.True;
+      } else {
+        return TaskStatus.False;
+      }
+    } else {
+      return TaskStatus.Idle;
+    }
+  }
+}
+
