@@ -6,5 +6,6 @@ export const appConfigs = {
   SYSTEM_TOKEN: (process.env.SYSTEM_TOKEN || "") as string,
   BASE_URL: (process.env.BASE_URL|| "") as string,
   BASE_SHELL_URL: (process.env.BASE_SHELL_URL|| "") as string,
-  SECOND_RENEW: 3 * 60
+  SECOND_RENEW: 3 * 60,
+  DOWNLOAD_UPLOAD_SPEED: 4 * 1024 * 1024
 }
