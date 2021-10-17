@@ -10,6 +10,43 @@ import { SessionStatus } from '../models/session';
 import { getDirUserData } from "../helper/dir";
 import rimraf from 'rimraf';
 
+function contextWaitingNonBlocking() {
+  let isRunning = false;
+  let step = 1;
+  let result: any;
+  return async function <Z, X, C>(
+    initFunc: () => Promise<Z>,
+    procFunc: (next: Z) => Promise<X>,
+    doneFunc: (next: X) => Promise<C>
+  ) {
+    if (isRunning) {
+      return;
+    }
+
+    if (step == 1) {
+      result = await initFunc();
+      step++;
+      log('[non-blocking] init func');
+    } else if (step == 2) {
+      isRunning = true;
+      step++;
+      log('[non-blocking] proc func');
+      (async () => {
+        result = await procFunc(result);
+        isRunning = false;
+        log('[non-blocking] proc func done');
+      })();
+    } else if (step == 3) {
+      result = await doneFunc(result);
+      step = 1;
+      isRunning = false;
+      log('[non-blocking] done func');
+    }
+  }
+}
+
+const newSessionNonblockingContext = contextWaitingNonBlocking();
+
 async function takeNewSession() {
   // sync detail
   try {
@@ -30,30 +67,46 @@ async function takeNewSession() {
 
   if (workerCurrent < workerMax) {
     log('session get...');
-    const workerNext = await workerService.getOne().catch(e => null);
-    const workerNextData = <any>workerNext?.data;
-    if (workerNextData?.status) {
-      const workerID = workerNextData.data;
-      log('session init', workerID);
 
-      const session = await Session.build(workerID);
-      if (session) {
-        const result = await session.asyncInit();
-        if (result == SessionStatus.Next) {
-          log('session connected', workerID);
-          context.sessions.push(session);
-        } else if (result == SessionStatus.Cancel) {
-          log('session checkpoint', workerID);
-          workerService.checkpoint(workerID);
+    await newSessionNonblockingContext(
+      // init func - block
+      async () => {
+        const workerNext = await workerService.getOne().catch(e => null);
+        const workerNextData = <any>workerNext?.data;
+        return workerNextData;
+      }, 
+
+      // proc func - non
+      async (workerNextData: any) => {
+        if (workerNextData?.status) {
+          const workerID = workerNextData.data;
+          log('session init', workerID);
+    
+          const session = await Session.build(workerID);
+          return session;
         } else {
-          log('session create failed');
-          await session.asyncClose(false);
+          log('session get failed');
+        }
+        return null;
+      },
+
+      // done func - block
+      async (session: false | Session | null) => {
+        if (session) {
+          const result = await session.asyncInit();
+          if (result == SessionStatus.Next) {
+            log('session connected', session.id);
+            context.sessions.push(session);
+          } else if (result == SessionStatus.Cancel) {
+            log('session checkpoint', session.id);
+            workerService.checkpoint(session.id);
+          } else {
+            log('session create failed');
+            await session.asyncClose(false);
+          }
         }
       }
-
-    } else {
-      log('session get failed');
-    }
+    );
   }
 
   return true;
@@ -115,7 +168,7 @@ export default async function main() {
     for (let i = 0; i < sessions.length; i++) {
       countRunning++;
       sessionsRunning.push(sessions[i]);
-      if (countRunning >= threads || i == sessions.length) {
+      if (countRunning >= threads || i == sessions.length - 1) {
         await Promise.all(sessionsRunning.map(async function (session) {
           const result = await session.asyncLoop();
           if (result != SessionStatus.Next) {
