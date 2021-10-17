@@ -99,7 +99,8 @@ async function takeNewSession() {
             context.sessions.push(session);
           } else if (result == SessionStatus.Cancel) {
             log('session checkpoint', session.id);
-            coinService.checkpoint(session.id);
+            await coinService.checkpoint(session.id);
+            await session.asyncClose(false);
           } else {
             log('session create failed');
             await session.asyncClose(false);

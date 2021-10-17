@@ -9,7 +9,12 @@ export default async function taskIsLogin(driver: WebDriver) {
   await sleep(1000);
 
   if ((await driver.getCurrentUrl()).match(/myaccount\.google\.com/gim)) {
-    return true;
+    try {
+      const locationAvatar = By.css('header div div button figure img');
+      await driver.wait(until.elementsLocated(locationAvatar), 5000);
+      return true;
+    } catch (e) {
+    }
   }
 
   return false;
