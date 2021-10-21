@@ -6,14 +6,14 @@
 - Status: Closed
 # Phase 2
 - Start 10/10/2021
-- Testing 11/10/2021 - 20/10/2021
+- Testing 20/10/2021 - 20/11/2021
 - Feature:
-  + Bug bị logout
-  + Bug limit quota
+  + Bug bị logout (Done)
+  + Bug limit quota (Done)
   + Bug limit network server 4MBps (Done)
-  + Bug fix tool can't sync status
+  + Bug fix tool can't sync status (Done)
   + Log image worker (Done)
-  + ...
+  + Mỗi máy mcoin, msuper giữ 1 số tài khoản nhất định
 # Phase 3
 - Start 12/10/2021
 - Testing ...
